@@ -332,7 +332,7 @@ export function ProfilePage({
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-slate-800">{formatNumber(token.amount)}</div>
-                      <div className="text-xs text-slate-400">${formatNumber(token.usdValue)}</div>
+                      <div className="text-xs text-slate-400">${formatNumber(token.usdValue ?? 0)}</div>
                     </div>
                   </div>
                 ))}

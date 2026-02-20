@@ -18,6 +18,7 @@ interface PhantomProvider {
   signMessage: (message: Uint8Array) => Promise<{ signature?: Uint8Array } | Uint8Array>;
   on?: (event: string, callback: (args: any) => void) => void;
   isPhantom?: boolean;
+  isSolflare?: boolean;
 }
 
 interface SolflareProvider {
@@ -139,7 +140,7 @@ export function useWallet() {
       } else {
         const existing = map.get(key)!;
         existing.amount += token.amount;
-        existing.usdValue += token.usdValue;
+        existing.usdValue = (existing.usdValue ?? 0) + (token.usdValue ?? 0);
       }
     });
     return Array.from(map.values()).filter((token) => token.amount > 0);

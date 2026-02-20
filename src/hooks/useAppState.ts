@@ -55,6 +55,45 @@ const KOL_AVATARS = KOL_SEED.reduce<Record<string, string>>((acc, kol) => {
   return acc;
 }, {});
 
+const normalizeCandidateUser = (candidate: any): User => {
+  const tokens = Array.isArray(candidate.tokens)
+    ? candidate.tokens.map((token: any) => {
+        if (typeof token === 'string') {
+          return { symbol: token, amount: 0, usdValue: 0 };
+        }
+        const amount = token.amount ?? 0;
+        const price = PRICE_MAP[token.symbol] || 0;
+        return {
+          symbol: token.symbol,
+          amount,
+          usdValue: token.usdValue ?? amount * price,
+          mint: token.mint,
+        };
+      })
+    : [];
+  const nfts = Array.isArray(candidate.nfts) ? candidate.nfts : [];
+  const computedTotal = tokens.reduce((sum: number, token: Token) => sum + (token.usdValue || 0), 0);
+  return {
+    wallet_address: candidate.wallet_address,
+    username: candidate.username,
+    gender: candidate.gender,
+    image: candidate.image,
+    photo: candidate.photo,
+    instagram: candidate.instagram,
+    xHandle: candidate.xHandle,
+    verified: candidate.verified ?? true,
+    tokens,
+    nfts,
+    nft_count: candidate.nft_count ?? nfts.length ?? 0,
+    total_value: candidate.total_value ?? computedTotal,
+    hearts_sent: 0,
+    hearts_received: 0,
+    bio: candidate.bio,
+    age: candidate.age,
+    distance: candidate.distance,
+  };
+};
+
 const getProfilePostId = (walletAddress: string) => {
   let hash = 0;
   for (let i = 0; i < walletAddress.length; i += 1) {
@@ -173,7 +212,7 @@ export function useAppState() {
     const parsedHearts = savedHearts || { sent: {}, received: {}, total: 0 };
     // Add a mock received heart if empty
     if (!Object.keys(parsedHearts.received || {}).length) {
-      parsedHearts.received = { [CANDIDATES[1].wallet_address]: Date.now() - 200000 };
+      parsedHearts.received = { [CANDIDATE_USERS[1].wallet_address]: Date.now() - 200000 };
     }
     setHearts(parsedHearts);
 
@@ -442,7 +481,7 @@ export function useAppState() {
         .select('post_id', { count: 'exact', head: true });
       if (!voteCount || voteCount === 0) {
         const voters = [
-          ...CANDIDATES.slice(0, 8).map((c) => c.wallet_address),
+          ...CANDIDATE_USERS.slice(0, 8).map((c) => c.wallet_address),
           ...KOL_PROFILES.slice(0, 8).map((c) => c.wallet_address),
         ];
         const voteRows = DEFAULT_POSTS.flatMap((post, idx) =>
@@ -513,7 +552,7 @@ export function useAppState() {
       const storedProfiles = readProfiles();
       const merged = new Map<string, User>();
       KOL_PROFILES.forEach((profile) => merged.set(profile.wallet_address, profile));
-      CANDIDATES.forEach((profile) => merged.set(profile.wallet_address, profile as User));
+      CANDIDATE_USERS.forEach((profile) => merged.set(profile.wallet_address, profile));
       Object.values(storedProfiles).forEach((profile) => merged.set(profile.wallet_address, profile));
       const rows = Array.from(merged.values()).map((fullProfile) => ({
         wallet_address: fullProfile.wallet_address,
@@ -551,9 +590,9 @@ export function useAppState() {
         .select('sender', { count: 'exact', head: true });
       if (!heartsCount || heartsCount === 0) {
         const pairs = [
-          [CANDIDATES[0].wallet_address, CANDIDATES[1].wallet_address],
-          [CANDIDATES[2].wallet_address, CANDIDATES[3].wallet_address],
-          [CANDIDATES[4].wallet_address, CANDIDATES[5].wallet_address],
+          [CANDIDATE_USERS[0].wallet_address, CANDIDATE_USERS[1].wallet_address],
+          [CANDIDATE_USERS[2].wallet_address, CANDIDATE_USERS[3].wallet_address],
+          [CANDIDATE_USERS[4].wallet_address, CANDIDATE_USERS[5].wallet_address],
         ];
         const heartRows = pairs.map(([sender, target]) => ({
           sender,
@@ -569,9 +608,9 @@ export function useAppState() {
         .from('messages')
         .select('id', { count: 'exact', head: true });
       if (!messageCount || messageCount === 0) {
-        const a = CANDIDATES[0].wallet_address;
-        const b = CANDIDATES[1].wallet_address;
-        const c = CANDIDATES[2].wallet_address;
+        const a = CANDIDATE_USERS[0].wallet_address;
+        const b = CANDIDATE_USERS[1].wallet_address;
+        const c = CANDIDATE_USERS[2].wallet_address;
         const messagesSeed = [
           { id: crypto.randomUUID(), sender: a, receiver: b, content: 'Hey! Loved your vibe.', image: null },
           { id: crypto.randomUUID(), sender: b, receiver: a, content: 'You too. Coffee this week?', image: null },
@@ -588,7 +627,7 @@ export function useAppState() {
         .from('notifications')
         .select('id', { count: 'exact', head: true });
       if (!notificationCount || notificationCount === 0) {
-        const recipient = CANDIDATES[0].wallet_address;
+        const recipient = CANDIDATE_USERS[0].wallet_address;
         const notificationSeed = [
           {
             id: crypto.randomUUID(),
@@ -596,7 +635,7 @@ export function useAppState() {
             actor: 'SUGAR',
             type: 'match',
             content: 'You received a new heart. Like back to reveal.',
-            wallet_address: CANDIDATES[1].wallet_address,
+            wallet_address: CANDIDATE_USERS[1].wallet_address,
             post_id: null,
           },
           {
@@ -605,7 +644,7 @@ export function useAppState() {
             actor: 'NovaBelle',
             type: 'comment',
             content: 'commented: “This is the energy.”',
-            wallet_address: CANDIDATES[2].wallet_address,
+            wallet_address: CANDIDATE_USERS[2].wallet_address,
             post_id: DEFAULT_POSTS[0].id,
           },
         ].map((note, idx) => ({
@@ -966,8 +1005,9 @@ export function useAppState() {
   }, [supabaseEnabled, safeParse, hydrateMessagesForUser]);
 
   const subscribeToMessages = useCallback((walletAddress: string) => {
-    if (!supabaseEnabled || !supabase) return () => {};
-    const channel = supabase
+    const client = supabase;
+    if (!supabaseEnabled || !client) return () => {};
+    const channel = client
       .channel(`messages:${walletAddress}`)
       .on(
         'postgres_changes',
@@ -1005,13 +1045,14 @@ export function useAppState() {
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      client.removeChannel(channel);
     };
   }, [supabaseEnabled, hydrated]);
 
   const subscribeToHearts = useCallback((walletAddress: string) => {
-    if (!supabaseEnabled || !supabase) return () => {};
-    const channel = supabase
+    const client = supabase;
+    if (!supabaseEnabled || !client) return () => {};
+    const channel = client
       .channel(`hearts:${walletAddress}`)
       .on(
         'postgres_changes',
@@ -1045,7 +1086,7 @@ export function useAppState() {
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      client.removeChannel(channel);
     };
   }, [supabaseEnabled]);
 
@@ -1264,10 +1305,11 @@ export function useAppState() {
         }
       }
       if (supabaseEnabled && supabase && updated) {
+        const updatedPost = updated as Post;
         if (voterAddress) {
           void supabase.from('post_votes').upsert(
             {
-              post_id: updated.id,
+              post_id: updatedPost.id,
               voter: voterAddress,
               type,
               timestamp: Date.now(),
@@ -1278,10 +1320,10 @@ export function useAppState() {
         void supabase
           .from('posts')
           .update({
-            vouch_count: updated.vouch_count || 0,
-            vent_count: updated.vent_count || 0,
+            vouch_count: updatedPost.vouch_count || 0,
+            vent_count: updatedPost.vent_count || 0,
           })
-          .eq('id', updated.id);
+          .eq('id', updatedPost.id);
       }
     },
     [posts, supabaseEnabled]
@@ -1383,7 +1425,7 @@ export function useAppState() {
       const profiles = readProfiles();
       const mergedProfiles = new Map<string, User>();
       KOL_PROFILES.forEach((profile) => mergedProfiles.set(profile.wallet_address, profile));
-      CANDIDATES.forEach((profile) => mergedProfiles.set(profile.wallet_address, profile as User));
+      CANDIDATE_USERS.forEach((profile) => mergedProfiles.set(profile.wallet_address, profile));
       Object.values(profiles).forEach((profile) => mergedProfiles.set(profile.wallet_address, profile));
       const profileRows = Array.from(mergedProfiles.values()).map((fullProfile) => ({
         wallet_address: fullProfile.wallet_address,
@@ -1519,16 +1561,16 @@ export function useAppState() {
     const run = () => {
       void syncLocalStateToSupabase();
     };
-    if ('requestIdleCallback' in window) {
-      const id = (window as any).requestIdleCallback(run);
+    if (typeof globalThis !== 'undefined' && 'requestIdleCallback' in globalThis) {
+      const id = (globalThis as any).requestIdleCallback(run);
       return () => {
-        if ('cancelIdleCallback' in window) {
-          (window as any).cancelIdleCallback(id);
+        if ('cancelIdleCallback' in globalThis) {
+          (globalThis as any).cancelIdleCallback(id);
         }
       };
     }
-    const timer = window.setTimeout(run, 1500);
-    return () => window.clearTimeout(timer);
+    const timer = setTimeout(run, 1500);
+    return () => clearTimeout(timer);
   }, [supabaseEnabled, syncLocalStateToSupabase]);
 
   // Build candidate portfolio
@@ -1676,7 +1718,7 @@ export function useAppState() {
         }
         excluded.add(currentUser);
       }
-      const merged = [...KOL_PROFILES, ...CANDIDATES, ...extraCandidates];
+      const merged = [...KOL_PROFILES, ...CANDIDATE_USERS, ...extraCandidates];
       const seen = new Set<string>();
       const uniqueAll = merged.filter((candidate) => {
         if (seen.has(candidate.wallet_address)) return false;
@@ -3963,6 +4005,8 @@ const CANDIDATES = [
     nfts: ['azuki-104'],
   },
 ];
+
+const CANDIDATE_USERS: User[] = CANDIDATES.map((candidate) => normalizeCandidateUser(candidate));
 
 const DEFAULT_INBOX_MESSAGES = [
   { sender: 'GkN2d7uYz3gT7Q3h6S2k1N8d9kX1m9e3tD2cY7g1s4mP', content: "You seem pretty. Let's chat?" },

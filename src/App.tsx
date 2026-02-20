@@ -54,7 +54,6 @@ function App() {
     sendHeart,
     recordSkip,
     advanceMatch,
-    skipMatch,
     saveProfile,
     seedMessagesFor,
     seedFeedActivity,
@@ -251,11 +250,7 @@ function App() {
 
   useEffect(() => {
     if (session && profile) {
-      ensureProfilePost(session.address, profile.username, appPortfolio, {
-        gender: profile.gender,
-        photo: profile.photo,
-        netWorth: appPortfolio?.total_value,
-      });
+      ensureProfilePost(session.address, profile.username, appPortfolio);
     }
   }, [session, profile, appPortfolio, ensureProfilePost]);
 

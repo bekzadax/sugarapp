@@ -3,11 +3,13 @@ export interface User {
   wallet_address: string;
   username: string;
   gender?: 'male' | 'female';
+  image?: string;
   photo?: string;
   instagram?: string;
   xHandle?: string;
   verified?: boolean;
   tokens: Token[];
+  nfts?: string[];
   nft_count: number;
   total_value: number;
   hearts_sent: number;
@@ -23,7 +25,7 @@ export interface Token {
   name?: string;
   mint?: string;
   amount: number;
-  usdValue: number;
+  usdValue?: number;
 }
 
 export interface Portfolio {
