@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import type { Connection, PublicKey } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
 import type { Session, Portfolio, Token, WalletType } from '@/types';
 import { STORAGE_KEYS, TOKEN_MINTS, PRICE_MAP } from '@/types';
@@ -7,8 +7,23 @@ import { STORAGE_KEYS, TOKEN_MINTS, PRICE_MAP } from '@/types';
 const RPC_URL =
   (import.meta.env.VITE_SOLANA_RPC_URL as string | undefined) ||
   'https://api.mainnet-beta.solana.com';
-const connection = new Connection(RPC_URL, 'confirmed');
-const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+let web3Promise: Promise<typeof import('@solana/web3.js')> | null = null;
+let cachedConnection: Connection | null = null;
+
+const loadWeb3 = async () => {
+  if (!web3Promise) {
+    web3Promise = import('@solana/web3.js');
+  }
+  return web3Promise;
+};
+
+const getConnection = async () => {
+  if (cachedConnection) return cachedConnection;
+  const { Connection } = await loadWeb3();
+  cachedConnection = new Connection(RPC_URL, 'confirmed');
+  return cachedConnection;
+};
 
 interface PhantomProvider {
   publicKey: PublicKey | null;
@@ -79,13 +94,15 @@ export function useWallet() {
 
   const fetchPortfolio = async (address: string): Promise<Portfolio> => {
     try {
+      const { PublicKey, LAMPORTS_PER_SOL } = await loadWeb3();
+      const connection = await getConnection();
       const publicKey = new PublicKey(address);
       const balanceLamports = await connection.getBalance(publicKey);
       const balance = balanceLamports / LAMPORTS_PER_SOL;
 
       const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
         publicKey,
-        { programId: TOKEN_PROGRAM_ID }
+        { programId: new PublicKey(TOKEN_PROGRAM_ID) }
       );
 
       const tokens: Token[] = [];
@@ -192,6 +209,7 @@ export function useWallet() {
     }
 
     if (signature && signature.length) {
+      const { PublicKey } = await loadWeb3();
       verified = nacl.sign.detached.verify(
         payload,
         signature,
