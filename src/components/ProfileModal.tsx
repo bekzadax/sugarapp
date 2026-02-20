@@ -69,7 +69,7 @@ export function ProfileModal({ isOpen, onClose, onSave, walletAddress }: Profile
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    Complete Your Sugar Profile
+                    Complete Your SUGAR Profile
                   </div>
                   <h3 className="font-serif text-2xl text-slate-800 mt-1">Sign in with your wallet</h3>
                 </div>

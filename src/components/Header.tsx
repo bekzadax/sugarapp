@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Heart, Bell, Wallet, ChevronDown, LogOut, User } from 'lucide-react';
+import { Bell, Wallet, ChevronDown, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Session, User as UserType } from '@/types';
+import logoUrl from '@/assets/logo.jpeg';
 
 interface HeaderProps {
   session: Session | null;
@@ -56,12 +57,18 @@ export function Header({
     <header className="relative z-50 flex items-center justify-between px-6 py-4 lg:px-8">
       {/* Logo */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-pink-500/30">
-          <Heart className="w-6 h-6 fill-current" />
+        <div className="w-11 h-11 rounded-2xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
+          <img
+            src={logoUrl}
+            alt="SUGAR"
+            className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
         </div>
         <div>
           <div className="font-serif text-2xl font-bold tracking-tight text-slate-900">
-            Sugar
+            SUGAR
           </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
             Find Your Web3 Match

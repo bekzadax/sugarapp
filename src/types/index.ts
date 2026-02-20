@@ -6,6 +6,7 @@ export interface User {
   photo?: string;
   instagram?: string;
   xHandle?: string;
+  verified?: boolean;
   tokens: Token[];
   nft_count: number;
   total_value: number;
@@ -50,6 +51,7 @@ export interface Post {
 }
 
 export interface Comment {
+  id?: string;
   author: string;
   text: string;
   holdings?: string[];
@@ -89,7 +91,7 @@ export interface Session {
 // App State
 export interface AppState {
   view: 'feed' | 'messages' | 'profile' | 'kol' | 'notifications';
-  feedTab: 'vouch' | 'hot' | 'new' | 'top';
+  feedTab: 'vouch' | 'hot' | 'new' | 'top' | 'liked';
   anonymous: boolean;
   posts: Post[];
   session: Session | null;
@@ -113,6 +115,7 @@ export interface Message {
   sender: string;
   receiver: string;
   content: string;
+  image?: string;
   timestamp: number;
   read: boolean;
 }
@@ -123,6 +126,7 @@ export interface Notification {
   actor: string;
   wallet_address?: string;
   recipient?: string;
+  postId?: number;
   content: string;
   timestamp: number;
   read: boolean;

@@ -30,6 +30,8 @@ export function ProfilePage({
       age: profile?.age,
       instagram: profile?.instagram,
       xHandle: profile?.xHandle,
+      photo: profile?.photo,
+      gender: profile?.gender,
     });
     setIsEditing(true);
   };
@@ -122,15 +124,48 @@ export function ProfilePage({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      displayProfile?.gender === 'female'
-                        ? 'bg-pink-100 text-pink-600'
-                        : 'bg-indigo-100 text-indigo-600'
-                    }`}
-                  >
-                    {displayProfile?.gender === 'female' ? 'Female' : 'Male'}
-                  </span>
+                  {isEditing ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() =>
+                          setEditedProfile((prev) => ({ ...prev, gender: 'female' }))
+                        }
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                          (editedProfile.gender || displayProfile?.gender) === 'female'
+                            ? 'bg-pink-500 text-white border-pink-500'
+                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        Female
+                      </button>
+                      <button
+                        onClick={() =>
+                          setEditedProfile((prev) => ({ ...prev, gender: 'male' }))
+                        }
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                          (editedProfile.gender || displayProfile?.gender) === 'male'
+                            ? 'bg-indigo-500 text-white border-indigo-500'
+                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        Male
+                      </button>
+                    </div>
+                  ) : displayProfile?.gender ? (
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        displayProfile?.gender === 'female'
+                          ? 'bg-pink-100 text-pink-600'
+                          : 'bg-indigo-100 text-indigo-600'
+                      }`}
+                    >
+                      {displayProfile.gender === 'female' ? 'Female' : 'Male'}
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">
+                      Not set
+                    </span>
+                  )}
                   {isEditing ? (
                     <input
                       type="number"
@@ -141,7 +176,9 @@ export function ProfilePage({
                       className="w-16 text-sm bg-slate-50 border border-slate-200 rounded px-2 py-0.5"
                     />
                   ) : (
-                    <span className="text-sm text-slate-500">{displayProfile?.age || 24} years old</span>
+                    <span className="text-sm text-slate-500">
+                      {displayProfile?.age ? `${displayProfile.age} years old` : 'Age not set'}
+                    </span>
                   )}
                 </div>
               </div>

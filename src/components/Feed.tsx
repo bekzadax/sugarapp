@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, MessageSquare, Share2, ThumbsUp, ThumbsDown, ChevronUp } from 'lucide-react';
 import type { Post, Portfolio, User } from '@/types';
@@ -8,16 +8,19 @@ interface FeedProps {
   session: { address: string } | null;
   profile: User | null;
   portfolio: Portfolio | null;
+  focusPostId?: number | null;
+  onFocusHandled?: () => void;
   anonymous: boolean;
-  feedTab: 'vouch' | 'hot' | 'new' | 'top';
+  feedTab: 'vouch' | 'hot' | 'new' | 'top' | 'liked';
   heartsTotal: number;
+  hasLikes: boolean;
   onCreatePost: (content: string) => void;
   onVote: (postId: number, type: 'vouch' | 'vent') => void;
   onAddComment: (postId: number, text: string) => void;
   onVoteComment: (postId: number, commentIndex: number) => void;
   onShare: (postId: number) => void;
   onToggleAnonymous: () => void;
-  onSetFeedTab: (tab: 'vouch' | 'hot' | 'new' | 'top') => void;
+  onSetFeedTab: (tab: 'vouch' | 'hot' | 'new' | 'top' | 'liked') => void;
   calculateOverlapScore: (tokens: string[], portfolio: Portfolio | null) => number;
 }
 
@@ -26,9 +29,12 @@ export function Feed({
   session,
   profile,
   portfolio,
+  focusPostId,
+  onFocusHandled,
   anonymous,
   feedTab,
   heartsTotal,
+  hasLikes,
   onCreatePost,
   onVote,
   onAddComment,
@@ -41,6 +47,7 @@ export function Feed({
   const [postContent, setPostContent] = useState('');
   const [expandedComments, setExpandedComments] = useState<Set<number>>(new Set());
   const [commentInputs, setCommentInputs] = useState<Record<number, string>>({});
+  const [highlightedPostId, setHighlightedPostId] = useState<number | null>(null);
 
   const handlePost = () => {
     if (!postContent.trim() || !session) return;
@@ -66,6 +73,26 @@ export function Feed({
     onAddComment(postId, text);
     setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
   };
+
+  useEffect(() => {
+    if (!focusPostId) return;
+    setExpandedComments((prev) => {
+      const next = new Set(prev);
+      next.add(focusPostId);
+      return next;
+    });
+    setHighlightedPostId(focusPostId);
+    const scrollTimer = window.setTimeout(() => {
+      const el = document.querySelector(`[data-post-id="${focusPostId}"]`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      onFocusHandled?.();
+    }, 50);
+    const clearTimer = window.setTimeout(() => setHighlightedPostId(null), 2000);
+    return () => {
+      window.clearTimeout(scrollTimer);
+      window.clearTimeout(clearTimer);
+    };
+  }, [focusPostId, onFocusHandled]);
 
 
   const formatTime = (timestamp: number) => {
@@ -94,7 +121,7 @@ export function Feed({
 
             {/* Tabs */}
             <div className="mt-3 flex flex-wrap gap-2">
-              {(['vouch', 'hot', 'new', 'top'] as const).map((tab) => (
+              {(['vouch', 'hot', 'new', 'top', 'liked'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => onSetFeedTab(tab)}
@@ -104,7 +131,11 @@ export function Feed({
                       : 'hover:bg-white/60 text-slate-500'
                   }`}
                 >
-                  {tab === 'vouch' ? 'Vouch & Vent' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'vouch'
+                    ? 'Vouch & Vent'
+                    : tab === 'liked'
+                    ? 'Liked'
+                    : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
@@ -158,20 +189,34 @@ export function Feed({
         )}
 
         {/* Posts */}
-        <AnimatePresence mode="popLayout">
-          {posts.map((post) => {
-            const matchPercent = calculateOverlapScore(post.tokens, portfolio);
-            const isCommentsOpen = expandedComments.has(post.id);
+        {posts.length === 0 ? (
+          <div className="text-center py-12 text-sm text-slate-400">
+            {!session
+              ? 'Connect your wallet to see the feed.'
+              : !hasLikes
+              ? 'Like someone to unlock their feed.'
+              : feedTab === 'liked'
+              ? 'No liked profiles yet. Send a heart to see their posts here.'
+              : 'No posts yet.'}
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {posts.map((post) => {
+              const matchPercent = calculateOverlapScore(post.tokens, portfolio);
+              const isCommentsOpen = expandedComments.has(post.id);
 
-            return (
-              <motion.div
-                key={post.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100"
-              >
+              return (
+                <motion.div
+                  key={post.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  data-post-id={post.id}
+                  className={`bg-white p-4 rounded-2xl shadow-sm border border-slate-100 ${
+                    highlightedPostId === post.id ? 'ring-2 ring-pink-200 shadow-lg' : ''
+                  }`}
+                >
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -298,10 +343,11 @@ export function Feed({
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );

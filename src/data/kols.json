@@ -1,0 +1,182 @@
+[
+  {
+    "wallet": "8deJ9xeUvXSJwicYptA9mHsU2rN2pDx37KWzkDkEXhU6",
+    "name": "Cooker",
+    "xHandle": "CookerFlips",
+    "netWorth": 420000,
+    "likes": 1240,
+    "tokens": [
+      { "symbol": "SOL", "amount": 180 },
+      { "symbol": "JUP", "amount": 32000 },
+      { "symbol": "USDC", "amount": 54000 }
+    ]
+  },
+  {
+    "wallet": "8zFZHuSRuDpuAR7J6FzwyF3vKNx4CVW3DFHJerQhc7Zd",
+    "name": "Pow",
+    "xHandle": "traderpow",
+    "netWorth": 380000,
+    "likes": 980,
+    "tokens": [
+      { "symbol": "SOL", "amount": 140 },
+      { "symbol": "JUP", "amount": 21000 },
+      { "symbol": "USDC", "amount": 48000 }
+    ]
+  },
+  {
+    "wallet": "7VBTpiiEjkwRbRGHJFUz6o5fWuhPFtAmy8JGhNqwHNnn",
+    "name": "Brox",
+    "xHandle": "ohbrox",
+    "netWorth": 510000,
+    "likes": 1320,
+    "tokens": [
+      { "symbol": "SOL", "amount": 220 },
+      { "symbol": "BONK", "amount": 180000000 },
+      { "symbol": "USDC", "amount": 62000 }
+    ]
+  },
+  {
+    "wallet": "HmBmSYwYEgEZuBUYuDs9xofyqBAkw4ywugB1d7R7sTGh",
+    "name": "Tobx",
+    "xHandle": "TobxG",
+    "netWorth": 290000,
+    "likes": 870,
+    "tokens": [
+      { "symbol": "SOL", "amount": 90 },
+      { "symbol": "JUP", "amount": 12000 },
+      { "symbol": "USDC", "amount": 22000 }
+    ]
+  },
+  {
+    "wallet": "mW4PZB45isHmnjGkLpJvjKBzVS5NXzTJ8UDyug4gTsM",
+    "name": "Dex",
+    "xHandle": "igndex",
+    "netWorth": 220000,
+    "likes": 760,
+    "tokens": [
+      { "symbol": "SOL", "amount": 70 },
+      { "symbol": "PYTH", "amount": 40000 },
+      { "symbol": "USDC", "amount": 16000 }
+    ]
+  },
+  {
+    "wallet": "DNfuF1L62WWyW3pNakVkyGGFzVVhj4Yr52jSmdTyeBHm",
+    "name": "Gake",
+    "xHandle": "Ga__ke",
+    "netWorth": 180000,
+    "likes": 690,
+    "tokens": [
+      { "symbol": "SOL", "amount": 60 },
+      { "symbol": "JTO", "amount": 8000 },
+      { "symbol": "USDC", "amount": 15000 }
+    ]
+  },
+  {
+    "wallet": "ATKi3ZvMbo31pbgBgGSGQPDPKEbQ4oGzoDrwG2sms56k",
+    "name": "Nach",
+    "xHandle": "NachSOL",
+    "netWorth": 610000,
+    "likes": 1430,
+    "tokens": [
+      { "symbol": "SOL", "amount": 240 },
+      { "symbol": "JUP", "amount": 50000 },
+      { "symbol": "USDC", "amount": 90000 }
+    ]
+  },
+  {
+    "wallet": "3kebnKw7cPdSkLRfiMEALyZJGZ4wdiSRvmoN4rD1yPzV",
+    "name": "Bastille",
+    "xHandle": "BastilleBtc",
+    "netWorth": 900000,
+    "likes": 540,
+    "tokens": [
+      { "symbol": "BTC", "amount": 8 },
+      { "symbol": "SOL", "amount": 90 },
+      { "symbol": "USDC", "amount": 120000 }
+    ]
+  },
+  {
+    "wallet": "AVAZvHLR2PcWpDf8BXY4rVxNHYRBytycHkcB5z5QNXYm",
+    "name": "Ansem",
+    "xHandle": "blknoiz06",
+    "netWorth": 1500000,
+    "likes": 2100,
+    "tokens": [
+      { "symbol": "SOL", "amount": 520 },
+      { "symbol": "BONK", "amount": 380000000 },
+      { "symbol": "USDC", "amount": 180000 }
+    ]
+  },
+  {
+    "wallet": "215nhcAHjQQGgwpQSJQ7zR26etbjjtVdW74NLzwEgQjP",
+    "name": "OGAntD",
+    "xHandle": "0GAntD",
+    "netWorth": 470000,
+    "likes": 1020,
+    "tokens": [
+      { "symbol": "SOL", "amount": 160 },
+      { "symbol": "JUP", "amount": 24000 },
+      { "symbol": "USDC", "amount": 65000 }
+    ]
+  },
+  {
+    "wallet": "7i7vHEv87bs135DuoJVKe9c7abentawA5ydfWcWc8iY2",
+    "name": "ChartFu",
+    "xHandle": "ChartFuMonkey",
+    "netWorth": 260000,
+    "likes": 640,
+    "tokens": [
+      { "symbol": "SOL", "amount": 110 },
+      { "symbol": "PYTH", "amount": 18000 },
+      { "symbol": "USDC", "amount": 21000 }
+    ]
+  },
+  {
+    "wallet": "F5TjPySiUJMdvqMZHnPP85Rc1vErDGV5FR5P2vdVm429",
+    "name": "Zyaf",
+    "xHandle": "0xZyaf",
+    "netWorth": 730000,
+    "likes": 1580,
+    "tokens": [
+      { "symbol": "SOL", "amount": 260 },
+      { "symbol": "WIF", "amount": 120000 },
+      { "symbol": "USDC", "amount": 98000 }
+    ]
+  },
+  {
+    "wallet": "6m5sW6EAPAHncxnzapi1ZVJNRb9RZHQ3Bj7FD84X9rAF",
+    "name": "Shocked JS",
+    "xHandle": "ShockedJS",
+    "netWorth": 190000,
+    "likes": 520,
+    "tokens": [
+      { "symbol": "SOL", "amount": 60 },
+      { "symbol": "JTO", "amount": 6000 },
+      { "symbol": "USDC", "amount": 18000 }
+    ]
+  },
+  {
+    "wallet": "DpNVrtA3ERfKzX4F8Pi2CVykdJJjoNxyY5QgoytAwD26",
+    "name": "Gorilla Capital",
+    "xHandle": "gorillacap",
+    "netWorth": 840000,
+    "likes": 1180,
+    "tokens": [
+      { "symbol": "SOL", "amount": 310 },
+      { "symbol": "BONK", "amount": 140000000 },
+      { "symbol": "USDC", "amount": 110000 }
+    ]
+  },
+  {
+    "wallet": "7SDs3PjT2mswKQ7Zo4FTucn9gJdtuW4jaacPA65BseHS",
+    "name": "Insentos",
+    "xHandle": "insentos",
+    "netWorth": 250000,
+    "likes": 680,
+    "tokens": [
+      { "symbol": "SOL", "amount": 80 },
+      { "symbol": "JUP", "amount": 14000 },
+      { "symbol": "USDC", "amount": 22000 }
+    ]
+  }
+]

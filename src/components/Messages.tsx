@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, ArrowLeft, Heart, Check, CheckCheck, X } from 'lucide-react';
-import type { Message, MatchCandidate } from '@/types';
+import { Send, ArrowLeft, Heart, Check, CheckCheck, X, ImagePlus } from 'lucide-react';
+import type { Message, MatchCandidate, Portfolio } from '@/types';
 import { MatchCard } from '@/components/MatchCard';
 
 interface MessagesProps {
   messages: Message[];
   session: { address: string };
   matches: Record<string, MatchCandidate>;
-  onSendMessage: (receiver: string, content: string) => void;
+  scanPortfolio?: Portfolio | null;
+  scannedWalletAddress?: string | null;
+  onScanWallet?: (walletAddress: string) => void;
+  onSendMessage: (receiver: string, content: string, image?: string) => void;
   openUser?: string | null;
   onOpenConversation?: (otherAddress: string) => void;
 }
@@ -17,6 +20,9 @@ export function Messages({
   messages,
   session,
   matches,
+  scanPortfolio,
+  scannedWalletAddress,
+  onScanWallet,
   onSendMessage,
   openUser,
   onOpenConversation,
@@ -24,6 +30,8 @@ export function Messages({
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
   const [showProfile, setShowProfile] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (openUser) {
@@ -38,11 +46,18 @@ export function Messages({
     setShowProfile(false);
   }, [selectedUser, onOpenConversation]);
 
+  useEffect(() => {
+    if (selectedUser && matches[selectedUser]?.gender === 'male' && onScanWallet) {
+      onScanWallet(selectedUser);
+    }
+  }, [selectedUser, matches, onScanWallet]);
+
   const conversationMap = useMemo(() => {
     const convs = new Map<string, Message[]>();
     messages.forEach((msg) => {
       if (msg.sender !== session.address && msg.receiver !== session.address) return;
       const other = msg.sender === session.address ? msg.receiver : msg.sender;
+      if (other === session.address) return;
       if (!convs.has(other)) {
         convs.set(other, []);
       }
@@ -68,6 +83,12 @@ export function Messages({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const formatNumber = (num: number) => {
+    if (num > 1000000) return `${(num / 1000000).toFixed(2)}M`;
+    if (num > 1000) return `${(num / 1000).toFixed(2)}K`;
+    return num.toFixed(2);
+  };
+
   const shortAddress = (addr: string) => {
     return `${addr.slice(0, 4)}...${addr.slice(-4)}`;
   };
@@ -84,6 +105,26 @@ export function Messages({
   const getInitials = (name?: string) => {
     if (!name) return 'SG';
     return name.replace('@', '').slice(0, 2).toUpperCase();
+  };
+
+  const handleSelectImage = (file?: File | null) => {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      alert('Image too large. Please choose a file under 3MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -116,6 +157,14 @@ export function Messages({
                 const unreadCount = convMessages.filter(
                   (m) => m.receiver === session.address && !m.read
                 ).length;
+                const meta =
+                  match?.gender === 'female'
+                    ? match.age
+                      ? `${match.age} yrs`
+                      : ''
+                    : match?.gender === 'male'
+                    ? `$${formatNumber(match.total_value || match.portfolio.total_value || 0)}`
+                    : '';
 
                 return (
                   <motion.button
@@ -140,7 +189,16 @@ export function Messages({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-800">{match?.username || sender}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-slate-800 truncate">
+                            {match?.username || shortAddress(sender)}
+                          </span>
+                          {meta && (
+                            <span className="text-[11px] font-semibold text-slate-400">
+                              {meta}
+                            </span>
+                          )}
+                        </div>
                         {lastMessage && (
                           <span className="text-xs text-slate-400">
                             {formatTime(lastMessage.timestamp)}
@@ -148,7 +206,8 @@ export function Messages({
                         )}
                       </div>
                       <p className="text-sm text-slate-500 truncate">
-                        {lastMessage?.content || 'Start a conversation...'}
+                        {lastMessage?.content ||
+                          (lastMessage?.image ? 'Sent a photo' : 'Start a conversation...')}
                       </p>
                     </div>
                     {unreadCount > 0 && (
@@ -175,24 +234,40 @@ export function Messages({
             </button>
             {selectedMatch && (
               <>
-                {selectedMatch.image ? (
-                  <img
-                    src={selectedMatch.image}
-                    alt={selectedMatch.username}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-semibold">
-                    {getInitials(selectedMatch.username)}
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(true)}
+                  className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                >
+                  {selectedMatch.image ? (
+                    <img
+                      src={selectedMatch.image}
+                      alt={selectedMatch.username}
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                      {getInitials(selectedMatch.username)}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-slate-800 truncate">{selectedMatch.username}</div>
+                    <div className="text-xs text-slate-400 flex items-center gap-2">
+                      <span>{shortAddress(selectedMatch.wallet_address)}</span>
+                      {selectedMatch.gender === 'female' && selectedMatch.age && (
+                        <span>{selectedMatch.age} yrs</span>
+                      )}
+                      {selectedMatch.gender === 'male' && (
+                        <span>
+                          ${formatNumber(selectedMatch.total_value || selectedMatch.portfolio.total_value || 0)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-                <div>
-                  <div className="font-semibold text-slate-800">{selectedMatch.username}</div>
-                  <div className="text-xs text-slate-400">{shortAddress(selectedMatch.wallet_address)}</div>
-                </div>
+                </button>
                 <button
                   onClick={() => setShowProfile(true)}
-                  className="ml-auto text-xs font-semibold text-pink-500 hover:text-pink-600"
+                  className="ml-auto text-xs font-semibold text-pink-500 hover:text-pink-600 whitespace-nowrap"
                 >
                   View Profile
                 </button>
@@ -216,16 +291,40 @@ export function Messages({
                 )}
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-slate-800">
-                    {selectedMatch.username} • {selectedMatch.age}
+                    {selectedMatch.username}
+                    {selectedMatch.gender === 'female' && selectedMatch.age && (
+                      <span> • {selectedMatch.age}</span>
+                    )}
+                    {selectedMatch.gender === 'male' && (
+                      <span>
+                        {' '}
+                        • ${formatNumber(selectedMatch.total_value ?? selectedMatch.portfolio.total_value ?? 0)}
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-slate-500 mt-1">
                     {selectedMatch.bio}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedMatch.gender === 'male' && (
-                      <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-xs text-slate-600 font-semibold">
-                        Net Worth ${selectedMatch.total_value.toFixed(2)}
-                      </span>
+                      <>
+                        {scanPortfolio && scannedWalletAddress === selectedUser ? (
+                          <>
+                            <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-xs text-slate-600 font-semibold">
+                              Net Worth ${scanPortfolio.total_value.toFixed(2)}
+                            </span>
+                            {scanPortfolio.tokens.slice(0, 4).map((t) => (
+                              <span key={t.symbol} className="px-2 py-1 rounded-full bg-white border border-slate-200 text-xs text-slate-600 font-semibold">
+                                {t.symbol} {t.amount.toFixed(2)}
+                              </span>
+                            ))}
+                          </>
+                        ) : (
+                          <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-xs text-slate-600 font-semibold">
+                            Net Worth ${(selectedMatch.total_value ?? 0).toFixed(2)}
+                          </span>
+                        )}
+                      </>
                     )}
                     {selectedMatch.match.sharedTokens.length > 0 && (
                       <span className="px-2 py-1 rounded-full bg-white border border-slate-200 text-xs text-slate-600 font-semibold">
@@ -279,7 +378,14 @@ export function Messages({
                           : 'bg-slate-100 text-slate-700 rounded-bl-md'
                       }`}
                     >
-                      <p className="text-sm">{msg.content}</p>
+                      {msg.image && (
+                        <img
+                          src={msg.image}
+                          alt="Message attachment"
+                          className="mb-2 max-h-56 rounded-xl object-cover border border-white/20"
+                        />
+                      )}
+                      {msg.content && <p className="text-sm">{msg.content}</p>}
                       <div
                         className={`flex items-center gap-1 mt-1 text-[10px] ${
                           isMe ? 'text-pink-200' : 'text-slate-400'
@@ -303,14 +409,45 @@ export function Messages({
 
           {/* Input */}
           <div className="p-4 border-t border-slate-100">
-            <div className="flex gap-2">
+            {imagePreview && (
+              <div className="mb-3 flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-3">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+                <div className="flex-1 text-xs text-slate-500">Ready to send photo</div>
+                <button
+                  onClick={clearImage}
+                  className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <div className="flex gap-2 items-center">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleSelectImage(e.target.files?.[0])}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
+              >
+                <ImagePlus className="w-4 h-4" />
+              </button>
               <input
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && selectedUser && messageInput.trim()) {
-                    onSendMessage(selectedUser, messageInput);
+                  if (e.key === 'Enter' && selectedUser && (messageInput.trim() || imagePreview)) {
+                    onSendMessage(selectedUser, messageInput.trim(), imagePreview || undefined);
                     setMessageInput('');
+                    clearImage();
                   }
                 }}
                 className="flex-1 bg-slate-50 border border-slate-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200"
@@ -318,12 +455,13 @@ export function Messages({
               />
               <button
                 onClick={() => {
-                  if (selectedUser && messageInput.trim()) {
-                    onSendMessage(selectedUser, messageInput);
+                  if (selectedUser && (messageInput.trim() || imagePreview)) {
+                    onSendMessage(selectedUser, messageInput.trim(), imagePreview || undefined);
                     setMessageInput('');
+                    clearImage();
                   }
                 }}
-                disabled={!messageInput.trim() || !selectedUser}
+                disabled={(!messageInput.trim() && !imagePreview) || !selectedUser}
                 className="w-10 h-10 rounded-full bg-pink-500 text-white flex items-center justify-center disabled:opacity-50 hover:bg-pink-600 transition-colors"
               >
                 <Send className="w-4 h-4" />

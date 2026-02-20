@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from '@/components/Header';
 import { MatchCard } from '@/components/MatchCard';
@@ -11,6 +11,7 @@ import { Notifications } from '@/components/Notifications';
 import { useWallet } from '@/hooks/useWallet';
 import { useAppState } from '@/hooks/useAppState';
 import { Toaster, toast } from 'sonner';
+import headerImage from '@/assets/header.jpeg';
 
 function App() {
   const {
@@ -19,6 +20,7 @@ function App() {
     connect,
     disconnect,
     refreshPortfolio,
+    fetchPortfolio,
   } = useWallet();
 
   const {
@@ -32,6 +34,7 @@ function App() {
     profile,
     portfolio: appPortfolio,
     scanPortfolio,
+    setScanPortfolio,
     matches,
     matchDirectory,
     matchIndex,
@@ -54,6 +57,7 @@ function App() {
     skipMatch,
     saveProfile,
     seedMessagesFor,
+    seedFeedActivity,
     boostWallet,
     sendMessage,
     setPortfolio,
@@ -63,26 +67,41 @@ function App() {
     addNotification,
     markNotificationRead,
     syncHeartsFor,
+    syncSkipsFor,
     markMessagesRead,
+    hydrateMessagesForUser,
+    loadMessagesForUser,
+    subscribeToMessages,
+    loadNotificationsForUser,
     getAllSavedProfiles,
+    getLikedWalletsFor,
     ensureProfileForWallet,
+    loadProfileForWallet,
+    syncProfilesFromSupabase,
+    ensureLikedPostsFor,
+    loadProfileFromSupabase,
+    subscribeToHearts,
   } = useAppState();
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeChatUser, setActiveChatUser] = useState<string | null>(null);
-  const lastSessionAddress = useRef<string | null>(null);
-  const hasAutoRefreshedMatches = useRef(false);
+  const [focusPostId, setFocusPostId] = useState<number | null>(null);
+  const [heartsReady, setHeartsReady] = useState(false);
+  const [profileReady, setProfileReady] = useState(false);
+  const [scannedWalletAddress, setScannedWalletAddress] = useState<string | null>(null);
+  const lastHeartsNotified = useRef<Record<string, number>>({});
 
-  const regenerateMatches = (options?: { ignoreHistory?: boolean }) => {
+  const savedProfiles = useMemo(() => {
+    if (!session) return [];
+    return getAllSavedProfiles().filter((p) => p.wallet_address !== session.address);
+  }, [session, profilesVersion, getAllSavedProfiles]);
+
+  const regenerateMatches = useCallback(() => {
     if (!session) return;
-    const savedProfiles = getAllSavedProfiles().filter(
-      (p) => p.wallet_address !== session.address
-    );
     return generateMatches(appPortfolio || null, savedProfiles, session.address, {
-      preferredGender: profile?.gender,
-      ignoreHistory: options?.ignoreHistory,
+      preferredGender: profile?.gender ?? 'male',
     });
-  };
+  }, [session, appPortfolio, savedProfiles, profile?.gender, generateMatches]);
 
 
   // Sync wallet portfolio with app state
@@ -92,17 +111,44 @@ function App() {
     }
   }, [walletPortfolio, setPortfolio]);
 
-  // Show profile modal after connection if no profile
+  // Show profile modal after profile load
   useEffect(() => {
-    if (session && (!profile || !profile.gender)) {
+    if (!session) return;
+    if (!profileReady) return;
+    if (!profile || !profile.gender) {
       setIsProfileModalOpen(true);
+    } else {
+      setIsProfileModalOpen(false);
     }
-  }, [session, profile, setIsProfileModalOpen]);
+  }, [session, profileReady, profile, setIsProfileModalOpen]);
 
   useEffect(() => {
-    if (session) {
+    if (!session) {
+      setHeartsReady(false);
+      setProfileReady(false);
+      return;
+    }
+    let active = true;
+    const run = async () => {
+      setProfileReady(false);
+      seedFeedActivity();
+      const localProfile = loadProfileForWallet(session.address);
+      if (localProfile?.gender) {
+        setProfileReady(true);
+      }
+      // Hydrate messages from localStorage immediately for this user so they persist across refresh
+      hydrateMessagesForUser(session.address);
+      await syncHeartsFor(session.address);
+      await syncSkipsFor(session.address);
+      if (!active) return;
+      setHeartsReady(true);
+      await loadProfileFromSupabase(session.address);
+      if (!active) return;
+      setProfileReady(true);
+      await loadMessagesForUser(session.address);
+      await loadNotificationsForUser(session.address);
+      if (!active) return;
       seedMessagesFor(session.address);
-      syncHeartsFor(session.address);
       refreshPortfolio().catch(() => {});
       const ensured = ensureProfileForWallet(
         session.address,
@@ -114,25 +160,94 @@ function App() {
       } else {
         setIsProfileModalOpen(false);
       }
-    }
-  }, [session, seedMessagesFor, syncHeartsFor, refreshPortfolio, ensureProfileForWallet]);
+    };
+    void run();
+    return () => {
+      active = false;
+    };
+  }, [
+    session,
+    seedFeedActivity,
+    seedMessagesFor,
+    hydrateMessagesForUser,
+    syncHeartsFor,
+    syncSkipsFor,
+    loadMessagesForUser,
+    subscribeToMessages,
+    loadNotificationsForUser,
+    refreshPortfolio,
+    ensureProfileForWallet,
+    loadProfileForWallet,
+    loadProfileFromSupabase,
+  ]);
 
   useEffect(() => {
-    if (!session) {
-      lastSessionAddress.current = null;
-      hasAutoRefreshedMatches.current = false;
-      return;
+    if (!session) return;
+    const unsubscribe = subscribeToMessages(session.address);
+    return () => {
+      unsubscribe();
+    };
+  }, [session, subscribeToMessages]);
+
+  useEffect(() => {
+    if (!session) return;
+    const unsubscribe = subscribeToHearts(session.address);
+    return () => {
+      unsubscribe();
+    };
+  }, [session, subscribeToHearts]);
+
+  useEffect(() => {
+    if (!session) return;
+    const id = window.setInterval(() => {
+      loadMessagesForUser(session.address);
+    }, 15000);
+    return () => window.clearInterval(id);
+  }, [session, loadMessagesForUser]);
+
+  useEffect(() => {
+    if (!session) return;
+    const count = Object.keys(hearts.received || {}).length;
+    const lastCount = lastHeartsNotified.current[session.address] ?? 0;
+    if (count > 0 && count > lastCount) {
+      addNotification({
+        type: 'match',
+        actor: 'SUGAR',
+        content: `You received ${count} hearts. Now it’s your turn.`,
+        recipient: session.address,
+      });
+      lastHeartsNotified.current[session.address] = count;
     }
-    if (lastSessionAddress.current !== session.address) {
-      lastSessionAddress.current = session.address;
-      hasAutoRefreshedMatches.current = false;
-    }
-    const generated = regenerateMatches();
-    if (!generated?.length && !hasAutoRefreshedMatches.current) {
-      hasAutoRefreshedMatches.current = true;
-      regenerateMatches({ ignoreHistory: true });
-    }
-  }, [session, profile?.gender, appPortfolio, profilesVersion, generateMatches, getAllSavedProfiles]);
+  }, [session, hearts.received, addNotification]);
+
+  // Run on load/profile change only — do NOT depend on ensureLikedPostsFor so that
+  // sending a heart doesn’t re-run this and cause the new post to disappear.
+  useEffect(() => {
+    if (!session || !heartsReady) return;
+    regenerateMatches();
+    ensureLikedPostsFor(session.address);
+  }, [session, heartsReady, profilesVersion, regenerateMatches]);
+
+  useEffect(() => {
+    if (!session || !profile || !heartsReady) return;
+    if (!profile.gender) return;
+    regenerateMatches();
+  }, [session, profile?.gender, heartsReady, regenerateMatches]);
+
+  useEffect(() => {
+    if (!session) return;
+    if (matches.length > 0) return;
+    regenerateMatches();
+  }, [session, matches.length, regenerateMatches]);
+
+  useEffect(() => {
+    if (!session) return;
+    syncProfilesFromSupabase();
+    const id = window.setInterval(() => {
+      syncProfilesFromSupabase();
+    }, 60000);
+    return () => window.clearInterval(id);
+  }, [session, syncProfilesFromSupabase]);
 
   useEffect(() => {
     if (session && profile) {
@@ -170,6 +285,9 @@ function App() {
   };
 
   const handleDisconnect = () => {
+    if (session?.address) {
+      delete lastHeartsNotified.current[session.address];
+    }
     disconnect();
     clearUserState();
     setActiveChatUser(null);
@@ -190,6 +308,13 @@ function App() {
         ensureMatchPost(match);
         boostWallet(match.wallet_address);
         toast.success(`Heart sent to ${match.username}!`);
+        addNotification({
+          type: 'match',
+          actor: profile?.username || session.address.slice(0, 8),
+          content: 'sent you a heart — like back to reveal',
+          wallet_address: session.address,
+          recipient: match.wallet_address,
+        });
       } catch (error) {
         console.error('sendHeart failed', error);
         toast.error('Failed to send heart. Moving to next profile.');
@@ -211,9 +336,6 @@ function App() {
       setView('messages');
     }
     advanceMatch(match.wallet_address);
-    if (matches.length <= 1) {
-      regenerateMatches();
-    }
   };
 
   const handleSkip = () => {
@@ -227,14 +349,36 @@ function App() {
       }
     }
     advanceMatch(match.wallet_address);
-    if (matches.length <= 1) {
-      regenerateMatches();
-    }
   };
 
-  const handleSendMessage = (receiver: string, content: string) => {
+  const handleSendMessage = (receiver: string, content: string, image?: string) => {
     if (!session) return;
-    sendMessage(receiver, content, session.address);
+    if (receiver === session.address) {
+      toast.error("You can't message yourself.");
+      return;
+    }
+    const hasHistory = messages.some(
+      (msg) =>
+        (msg.sender === session.address && msg.receiver === receiver) ||
+        (msg.sender === receiver && msg.receiver === session.address)
+    );
+    let likesMap: Record<string, string[]> = {};
+    try {
+      const raw = localStorage.getItem('sugar-likes');
+      likesMap = raw ? JSON.parse(raw) : {};
+    } catch {
+      likesMap = {};
+    }
+    const hasSentHeart =
+      !!hearts.sent[receiver] || (likesMap[session.address] || []).includes(receiver);
+    const hasReceivedHeart =
+      !!hearts.received[receiver] || (likesMap[receiver] || []).includes(session.address);
+    const isMutual = hasSentHeart && hasReceivedHeart;
+    if (!isMutual && !hasHistory) {
+      toast.error('You can only message after both hearts are sent.');
+      return;
+    }
+    sendMessage(receiver, content, session.address, image);
     const actor = profile?.username || session.address.slice(0, 8);
     addNotification({
       type: 'message',
@@ -243,6 +387,16 @@ function App() {
       wallet_address: session.address,
       recipient: receiver,
     });
+  };
+
+  const handleScanWallet = (walletAddress: string) => {
+    setScannedWalletAddress(walletAddress);
+    setScanPortfolio(null);
+    fetchPortfolio(walletAddress)
+      .then((p) => {
+        setScanPortfolio(p);
+      })
+      .catch((err) => console.warn('Scan wallet failed', err));
   };
 
   const handleCreatePost = (content: string) => {
@@ -256,14 +410,18 @@ function App() {
   };
 
   const handleVotePost = (postId: number, type: 'vouch' | 'vent') => {
-    votePost(postId, type);
-    const actor = profile?.username || 'Someone';
-    addNotification({
-      type: 'vote',
-      actor,
-      content: type === 'vouch' ? 'vouched your post' : 'vented your post',
-      recipient: session?.address,
-    });
+    votePost(postId, type, session?.address);
+    const post = posts.find((p) => p.id === postId);
+    if (post && session && post.wallet_address !== session.address) {
+      const actor = profile?.username || session.address.slice(0, 8);
+      addNotification({
+        type: 'vote',
+        actor,
+        content: type === 'vouch' ? 'vouched your post' : 'vented your post',
+        recipient: post.wallet_address,
+        postId,
+      });
+    }
   };
 
   const handleAddComment = (postId: number, text: string) => {
@@ -273,12 +431,16 @@ function App() {
     }
     const username = profile?.username || session.address.slice(0, 8);
     addComment(postId, text, username);
-    addNotification({
-      type: 'comment',
-      actor: username,
-      content: `commented: "${text}"`,
-      recipient: session?.address,
-    });
+    const post = posts.find((p) => p.id === postId);
+    if (post && post.wallet_address !== session.address) {
+      addNotification({
+        type: 'comment',
+        actor: username,
+        content: `commented: "${text}"`,
+        recipient: post.wallet_address,
+        postId,
+      });
+    }
   };
 
   const handleSaveProfile = (userProfile: Parameters<typeof saveProfile>[0]) => {
@@ -287,11 +449,34 @@ function App() {
     toast.success('Profile saved!');
   };
 
-  const currentMatch = matches[matchIndex] || null;
-  const userNotifications = session
-    ? notifications.filter((note) => !note.recipient || note.recipient === session.address)
-    : [];
-  const sortedPosts = getSortedPosts();
+  const currentMatch = useMemo(() => {
+    if (!session) return null;
+    return matches[matchIndex] || null;
+  }, [matches, matchIndex, session]);
+  const likedWallets = useMemo(
+    () => (session ? getLikedWalletsFor(session.address) : []),
+    [session, getLikedWalletsFor, hearts.sent]
+  );
+  const userNotifications = useMemo(
+    () =>
+      session
+        ? notifications.filter((note) => !note.recipient || note.recipient === session.address)
+        : [],
+    [notifications, session]
+  );
+  const sortedPosts = useMemo(() => {
+    const base = getSortedPosts();
+    if (feedTab === 'liked') {
+      if (!likedWallets.length) return [];
+      return base.filter((post) => likedWallets.includes(post.wallet_address));
+    }
+    return base;
+  }, [getSortedPosts, feedTab, likedWallets]);
+  const likedOnlyPosts = useMemo(() => {
+    if (!likedWallets.length) return [];
+    return sortedPosts.filter((post) => likedWallets.includes(post.wallet_address));
+  }, [sortedPosts, likedWallets]);
+  const visiblePosts = session && likedWallets.length ? likedOnlyPosts : [];
   const activePortfolio = scanPortfolio || appPortfolio;
 
   return (
@@ -319,6 +504,27 @@ function App() {
         portfolioBalance={appPortfolio?.balance}
       />
 
+      <section className="relative z-10 w-full max-w-[1440px] mx-auto px-4 lg:px-8 pb-6">
+        <div className="relative h-32 md:h-44 rounded-[32px] overflow-hidden border border-white/50 shadow-lg shadow-pink-500/10 bg-slate-900">
+          <img
+            src={headerImage}
+            alt="SUGAR"
+            className="absolute inset-0 w-full h-full object-cover scale-105"
+            loading="eager"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/40 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_55%)]" />
+          <div className="relative h-full flex flex-col justify-center px-6">
+            <div className="text-[11px] uppercase tracking-[0.45em] text-white/70 font-semibold">SUGAR</div>
+            <div className="text-2xl md:text-3xl font-serif text-white font-semibold leading-tight">
+              Verified KOLs. Real matches.
+              <span className="block text-white/80">Real activity.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Main Content */}
       <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 overflow-hidden">
         {/* Left Column - Match Card (Feed/Matches views) */}
@@ -334,6 +540,7 @@ function App() {
                 match={currentMatch}
                 onSkip={handleSkip}
                 onHeart={handleSendHeart}
+                emptyState={session ? 'nomore' : 'connect'}
               />
             </div>
           </section>
@@ -346,6 +553,9 @@ function App() {
               messages={messages}
               session={session}
               matches={matchDirectory}
+              scanPortfolio={scanPortfolio}
+              scannedWalletAddress={scannedWalletAddress}
+              onScanWallet={handleScanWallet}
               onSendMessage={handleSendMessage}
               openUser={activeChatUser}
               onOpenConversation={(otherAddress) => {
@@ -368,6 +578,14 @@ function App() {
                   setView('messages');
                   markMessagesRead(session.address, note.wallet_address);
                 }
+                if (note.type === 'match' && note.wallet_address && session) {
+                  setActiveChatUser(note.wallet_address);
+                  setView('messages');
+                }
+                if ((note.type === 'vote' || note.type === 'comment') && note.postId) {
+                  setView('feed');
+                  setFocusPostId(note.postId);
+                }
               }}
             />
           </section>
@@ -376,18 +594,26 @@ function App() {
         {/* Left Column - Profile */}
         {view === 'profile' && session && (
           <section className="col-span-12 lg:col-span-12 h-[calc(100vh-120px)]">
-            <ProfilePage
-              profile={profile}
-              session={session}
-              portfolio={appPortfolio}
-              heartsSent={Object.keys(hearts.sent).length}
-              heartsReceived={Object.keys(hearts.received).length}
-              onUpdateProfile={(updates) => {
-                if (profile) {
-                  saveProfile({ ...profile, ...updates }, session.address);
-                }
-              }}
-            />
+            {profileReady ? (
+              <ProfilePage
+                profile={profile}
+                session={session}
+                portfolio={appPortfolio}
+                heartsSent={Object.keys(hearts.sent).length}
+                heartsReceived={Object.keys(hearts.received).length}
+                onUpdateProfile={(updates) => {
+                  saveProfile(updates, session.address);
+                }}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <div className="bg-white/80 backdrop-blur rounded-3xl p-8 border border-white/60 shadow-sm">
+                  <div className="text-sm font-semibold text-slate-600">
+                    Loading your profile...
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
@@ -412,13 +638,16 @@ function App() {
                   className="h-full flex flex-col"
                 >
                   <Feed
-                    posts={sortedPosts}
+                    posts={visiblePosts}
                     session={session}
                     profile={profile}
                     portfolio={appPortfolio}
+                    focusPostId={focusPostId}
+                    onFocusHandled={() => setFocusPostId(null)}
                     anonymous={anonymous}
                     feedTab={feedTab}
-                    heartsTotal={hearts.total}
+                    heartsTotal={session ? hearts.total : 0}
+                    hasLikes={likedWallets.length > 0}
                     onCreatePost={handleCreatePost}
                     onVote={handleVotePost}
                     onAddComment={handleAddComment}
@@ -426,7 +655,7 @@ function App() {
                     onShare={(postId) => {
                       const post = posts.find((p) => p.id === postId);
                       if (post) {
-                        const text = `${post.content} — via Sugar`;
+                        const text = `${post.content} — via SUGAR`;
                         const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
                         window.open(url, '_blank');
                       }
@@ -445,13 +674,16 @@ function App() {
                   className="h-full flex flex-col"
                 >
                   <Feed
-                    posts={sortedPosts}
+                    posts={visiblePosts}
                     session={session}
                     profile={profile}
                     portfolio={appPortfolio}
+                    focusPostId={focusPostId}
+                    onFocusHandled={() => setFocusPostId(null)}
                     anonymous={anonymous}
                     feedTab={feedTab}
-                    heartsTotal={hearts.total}
+                    heartsTotal={session ? hearts.total : 0}
+                    hasLikes={likedWallets.length > 0}
                     onCreatePost={handleCreatePost}
                     onVote={handleVotePost}
                     onAddComment={handleAddComment}
@@ -459,7 +691,7 @@ function App() {
                     onShare={(postId) => {
                       const post = posts.find((p) => p.id === postId);
                       if (post) {
-                        const text = `${post.content} — via Sugar`;
+                        const text = `${post.content} — via SUGAR`;
                         const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
                         window.open(url, '_blank');
                       }

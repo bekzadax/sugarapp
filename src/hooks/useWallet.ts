@@ -4,7 +4,9 @@ import * as nacl from 'tweetnacl';
 import type { Session, Portfolio, Token, WalletType } from '@/types';
 import { STORAGE_KEYS, TOKEN_MINTS, PRICE_MAP } from '@/types';
 
-const RPC_URL = 'https://rpc.ankr.com/solana';
+const RPC_URL =
+  (import.meta.env.VITE_SOLANA_RPC_URL as string | undefined) ||
+  'https://api.mainnet-beta.solana.com';
 const connection = new Connection(RPC_URL, 'confirmed');
 const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
@@ -168,7 +170,7 @@ export function useWallet() {
     provider: PhantomProvider | SolflareProvider,
     address: string
   ): Promise<Session> => {
-    const message = `Sugar wants you to sign in with your Solana wallet.\nWallet: ${address}\nNonce: ${crypto.randomUUID()}\nIssued At: ${new Date().toISOString()}`;
+    const message = `SUGAR wants you to sign in with your Solana wallet.\nWallet: ${address}\nNonce: ${crypto.randomUUID()}\nIssued At: ${new Date().toISOString()}`;
     const payload = new TextEncoder().encode(message);
     let signature: Uint8Array | null = null;
     let verified = false;

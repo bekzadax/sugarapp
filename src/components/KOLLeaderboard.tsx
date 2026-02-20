@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, ExternalLink, TrendingUp, Heart } from 'lucide-react';
 import type { Portfolio } from '@/types';
+import rawKols from '@/data/kols.json';
 
 interface KOL {
   address: string;
@@ -9,35 +10,44 @@ interface KOL {
   handle: string;
   likes: number;
   netWorth: number;
+  tokens: { symbol: string; amount: number }[];
 }
 
 interface KOLLeaderboardProps {
   portfolio: Portfolio | null;
 }
 
-const KOL_DATABASE: KOL[] = [
-  { address: '8deJ9xeUvXSJwicYptA9mHsU2rN2pDx37KWzkDkEXhU6', name: 'Cooker', handle: '@CookerFlips', likes: 1240, netWorth: 420000 },
-  { address: '8zFZHuSRuDpuAR7J6FzwyF3vKNx4CVW3DFHJerQhc7Zd', name: 'Pow', handle: '@traderpow', likes: 980, netWorth: 380000 },
-  { address: '7VBTpiiEjkwRbRGHJFUz6o5fWuhPFtAmy8JGhNqwHNnn', name: 'Brox', handle: '@ohbrox', likes: 1320, netWorth: 510000 },
-  { address: 'HmBmSYwYEgEZuBUYuDs9xofyqBAkw4ywugB1d7R7sTGh', name: 'Tobx', handle: '@TobxG', likes: 870, netWorth: 290000 },
-  { address: 'mW4PZB45isHmnjGkLpJvjKBzVS5NXzTJ8UDyug4gTsM', name: 'Dex', handle: '@igndex', likes: 760, netWorth: 220000 },
-  { address: 'DNfuF1L62WWyW3pNakVkyGGFzVVhj4Yr52jSmdTyeBHm', name: 'Gake', handle: '@Ga__ke', likes: 690, netWorth: 180000 },
-  { address: 'ATKi3ZvMbo31pbgBgGSGQPDPKEbQ4oGzoDrwG2sms56k', name: 'Nach', handle: '@NachSOL', likes: 1430, netWorth: 610000 },
-  { address: '3kebnKw7cPdSkLRfiMEALyZJGZ4wdiSRvmoN4rD1yPzV', name: 'Bastille', handle: '@BastilleBtc', likes: 540, netWorth: 900000 },
-  { address: 'AVAZvHLR2PcWpDf8BXY4rVxNHYRBytycHkcB5z5QNXYm', name: 'Ansem', handle: '@blknoiz06', likes: 2100, netWorth: 1500000 },
-  { address: '215nhcAHjQQGgwpQSJQ7zR26etbjjtVdW74NLzwEgQjP', name: 'OGAntD', handle: '@0GAntD', likes: 1020, netWorth: 470000 },
-  { address: '7i7vHEv87bs135DuoJVKe9c7abentawA5ydfWcWc8iY2', name: 'ChartFu', handle: '@ChartFuMonkey', likes: 640, netWorth: 260000 },
-  { address: 'F5TjPySiUJMdvqMZHnPP85Rc1vErDGV5FR5P2vdVm429', name: 'Zyaf', handle: '@0xZyaf', likes: 1580, netWorth: 730000 },
-  { address: '6m5sW6EAPAHncxnzapi1ZVJNRb9RZHQ3Bj7FD84X9rAF', name: 'Shocked JS', handle: '@ShockedJS', likes: 520, netWorth: 190000 },
-  { address: 'DpNVrtA3ERfKzX4F8Pi2CVykdJJjoNxyY5QgoytAwD26', name: 'Gorilla Capital', handle: '@gorillacapsol', likes: 1180, netWorth: 840000 },
-  { address: '7SDs3PjT2mswKQ7Zo4FTucn9gJdtuW4jaacPA65BseHS', name: 'Insentos', handle: '@insentos', likes: 680, netWorth: 250000 },
-];
+const normalizeHandle = (value?: string) => {
+  if (!value) return '';
+  const cleaned = value.replace(/^@/, '').trim();
+  if (cleaned.toLowerCase() === 'kolscan') return '';
+  if (cleaned.toLowerCase() === 'gorillacapsol') return 'gorillacap';
+  return cleaned;
+};
+
+const KOL_DATABASE: KOL[] = (Array.isArray(rawKols) ? rawKols : [])
+  .filter((kol: any) => kol?.wallet)
+  .map((kol: any) => {
+    const handle = normalizeHandle(kol.xHandle);
+    const name = (kol.name && kol.name.toLowerCase() !== 'kolscan' ? kol.name : '') ||
+      (handle ? handle : kol.wallet.slice(0, 6));
+    return {
+      address: kol.wallet,
+      name,
+      handle: handle ? `@${handle}` : '',
+      likes: Number(kol.likes || 0),
+      netWorth: Number(kol.netWorth || 0),
+      tokens: Array.isArray(kol.tokens) ? kol.tokens : [],
+    };
+  });
 
 const formatNumber = (num: number) => {
   if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)}M`;
   if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
   return num.toString();
 };
+
+const shortAddress = (address: string) => `${address.slice(0, 4)}...${address.slice(-4)}`;
 
 export function KOLLeaderboard(_props: KOLLeaderboardProps) {
   const [sortBy, setSortBy] = useState<'likes' | 'netWorth'>('likes');
@@ -93,22 +103,43 @@ export function KOLLeaderboard(_props: KOLLeaderboardProps) {
             transition={{ delay: index * 0.03 }}
             className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4"
           >
+            {/** profile image + handle */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-                  {index + 1}
+                <div className="relative">
+                  {kol.handle ? (
+                    <img
+                      src={`https://unavatar.io/x/${kol.handle.replace('@', '')}`}
+                      alt={kol.name}
+                      className="w-12 h-12 rounded-full object-cover border border-slate-200"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-slate-900 text-white text-xs font-semibold flex items-center justify-center border border-slate-200">
+                      {shortAddress(kol.address)}
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white text-[10px] font-bold flex items-center justify-center shadow">
+                    {index + 1}
+                  </div>
                 </div>
                 <div>
                   <div className="font-semibold text-slate-800">{kol.name}</div>
-                  <a
-                    href={`https://x.com/${kol.handle.replace('@', '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
-                  >
-                    {kol.handle}
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <div className="text-xs text-slate-400 font-mono">{shortAddress(kol.address)}</div>
+                  {kol.handle ? (
+                    <a
+                      href={`https://x.com/${kol.handle.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
+                    >
+                      {kol.handle}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  ) : (
+                    <div className="text-xs text-slate-400">No X linked</div>
+                  )}
                 </div>
               </div>
 
@@ -123,6 +154,19 @@ export function KOLLeaderboard(_props: KOLLeaderboardProps) {
                 </div>
               </div>
             </div>
+
+            {kol.tokens.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {kol.tokens.slice(0, 5).map((token) => (
+                  <span
+                    key={`${kol.address}-${token.symbol}`}
+                    className="px-2 py-1 rounded-full bg-slate-100 text-[10px] font-bold text-slate-500"
+                  >
+                    {token.symbol} {formatNumber(Number(token.amount || 0))}
+                  </span>
+                ))}
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
