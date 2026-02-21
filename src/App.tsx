@@ -276,11 +276,6 @@ function App() {
     setIsConnecting(true);
     try {
       const result = await connect(type);
-      if (result?.mobileLink) {
-        toast.message(`Opening ${type === 'phantom' ? 'Phantom' : 'Solflare'}…`);
-        window.location.href = result.mobileLink;
-        return;
-      }
       if (result?.address) {
         void refreshPortfolio().catch(() => {});
       }

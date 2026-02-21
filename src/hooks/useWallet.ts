@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import type { Connection, PublicKey } from '@solana/web3.js';
+import type { Connection } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { WalletNotReadyError } from '@solana/wallet-adapter-base';
+import { WalletNotReadyError, type WalletName } from '@solana/wallet-adapter-base';
 import type { Session, Portfolio, Token, WalletType } from '@/types';
 import { STORAGE_KEYS, TOKEN_MINTS, PRICE_MAP } from '@/types';
 
@@ -220,7 +220,7 @@ export function useWallet() {
         throw new Error('Unsupported wallet type');
       }
       if (!wallet || wallet.adapter?.name !== walletName) {
-        select(walletName);
+        select(walletName as WalletName);
       }
       await adapterConnect();
       const address =
