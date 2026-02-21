@@ -93,10 +93,6 @@ function App() {
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string | null>(null);
   const lastHeartsNotified = useRef<Record<string, number>>({});
   const [mobileConnectType, setMobileConnectType] = useState<'phantom' | 'solflare' | null>(null);
-  const isMobile = useMemo(() => {
-    if (typeof navigator === 'undefined') return false;
-    return /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
-  }, []);
   const buildWalletBrowseLink = useCallback((type: 'phantom' | 'solflare') => {
     const url = typeof window !== 'undefined' ? window.location.href : 'https://sugar-app.xyz';
     const encoded = encodeURIComponent(url);
