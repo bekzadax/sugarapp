@@ -28,6 +28,13 @@ const getConnection = async () => {
   return cachedConnection;
 };
 
+export type WalletConnectResult = {
+  address: string | null;
+  portfolio: null;
+  needsMobile?: boolean;
+  walletType?: WalletType;
+};
+
 const WALLET_NAMES: Record<WalletType, string> = {
   phantom: 'Phantom',
   solflare: 'Solflare',
@@ -212,7 +219,7 @@ export function useWallet() {
       });
   }, [publicKey, wallet?.adapter?.name, signMessage, session?.address]);
 
-  const connect = async (type: WalletType) => {
+  const connect = async (type: WalletType): Promise<WalletConnectResult> => {
     setIsConnecting(true);
     try {
       const walletName = WALLET_NAMES[type];
@@ -235,7 +242,7 @@ export function useWallet() {
     } catch (error) {
       if (error instanceof WalletNotReadyError) {
         setVisible(true);
-        throw new Error('Wallet not detected. On mobile, open in the wallet app browser to connect.');
+        return { address: null, portfolio: null, needsMobile: true, walletType: type };
       }
       console.error('Wallet connection failed:', error);
       throw error;

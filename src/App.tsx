@@ -8,7 +8,7 @@ import { Messages } from '@/components/Messages';
 import { ProfilePage } from '@/components/Profile';
 import { KOLLeaderboard } from '@/components/KOLLeaderboard';
 import { Notifications } from '@/components/Notifications';
-import { useWallet } from '@/hooks/useWallet';
+import { useWallet, type WalletConnectResult } from '@/hooks/useWallet';
 import { useAppState } from '@/hooks/useAppState';
 import { Toaster, toast } from 'sonner';
 import headerImage from '@/assets/header.jpeg';
@@ -92,6 +92,18 @@ function App() {
   const [profileReady, setProfileReady] = useState(false);
   const [scannedWalletAddress, setScannedWalletAddress] = useState<string | null>(null);
   const lastHeartsNotified = useRef<Record<string, number>>({});
+  const [mobileConnectType, setMobileConnectType] = useState<'phantom' | 'solflare' | null>(null);
+  const isMobile = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    return /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
+  }, []);
+  const buildWalletBrowseLink = useCallback((type: 'phantom' | 'solflare') => {
+    const url = typeof window !== 'undefined' ? window.location.href : 'https://sugar-app.xyz';
+    const encoded = encodeURIComponent(url);
+    return type === 'phantom'
+      ? `https://phantom.app/ul/browse/${encoded}`
+      : `https://solflare.com/ul/v1/browse/${encoded}`;
+  }, []);
 
   const savedProfiles = useMemo(() => {
     if (!session) return [];
@@ -275,7 +287,11 @@ function App() {
   const handleConnect = async (type: 'phantom' | 'solflare') => {
     setIsConnecting(true);
     try {
-      const result = await connect(type);
+      const result: WalletConnectResult = await connect(type);
+      if (result.needsMobile) {
+        setMobileConnectType(type);
+        return;
+      }
       if (result?.address) {
         void refreshPortfolio().catch(() => {});
       }
@@ -753,6 +769,39 @@ function App() {
         onSave={handleSaveProfile}
         walletAddress={session?.address || ''}
       />
+
+      {mobileConnectType && (
+        <div className="fixed inset-0 z-[70] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-xl border border-white/80">
+            <div className="text-sm uppercase tracking-[0.3em] text-slate-400 font-semibold">Mobile Connect</div>
+            <h3 className="mt-2 text-2xl font-serif text-slate-800">Open your wallet app</h3>
+            <p className="mt-3 text-sm text-slate-500 leading-relaxed">
+              On mobile, Solana wallets complete approval inside the wallet app’s browser.
+              You’ll approve the connection there and continue setting up your profile.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  const url = buildWalletBrowseLink(mobileConnectType);
+                  window.location.href = url;
+                }}
+                className="w-full rounded-full bg-slate-900 text-white py-3 text-sm font-semibold"
+              >
+                Open {mobileConnectType === 'phantom' ? 'Phantom' : 'Solflare'}
+              </button>
+              <button
+                onClick={() => setMobileConnectType(null)}
+                className="w-full rounded-full border border-slate-200 py-3 text-sm font-semibold text-slate-600"
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="mt-4 text-xs text-slate-400">
+              We never see your private keys. Connection approval happens inside your wallet.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading Overlay */}
       {isConnecting && (
