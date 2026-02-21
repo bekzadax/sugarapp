@@ -266,10 +266,6 @@ function App() {
     setIsConnecting(true);
     try {
       const result = await connect(type);
-      if (result?.redirected) {
-        toast.message(`Opening ${type === 'phantom' ? 'Phantom' : 'Solflare'}…`);
-        return;
-      }
       if (result?.address) {
         void refreshPortfolio().catch(() => {});
       }
@@ -348,7 +344,7 @@ function App() {
     advanceMatch(match.wallet_address);
   };
 
-  const handleSendMessage = (receiver: string, content: string, image?: string) => {
+  const handleSendMessage = async (receiver: string, content: string, image?: string) => {
     if (!session) return;
     if (receiver === session.address) {
       toast.error("You can't message yourself.");
@@ -368,8 +364,22 @@ function App() {
     }
     let hasSentHeart =
       !!hearts.sent[receiver] || (likesMap[session.address] || []).includes(receiver);
-    const hasReceivedHeart =
+    let hasReceivedHeart =
       !!hearts.received[receiver] || (likesMap[receiver] || []).includes(session.address);
+    const ensureHearts = async () => {
+      await syncHeartsFor(session.address);
+      const refreshedLikesRaw = localStorage.getItem('sugar-likes');
+      const refreshedLikes: Record<string, string[]> = refreshedLikesRaw ? JSON.parse(refreshedLikesRaw) : {};
+      hasSentHeart =
+        !!hearts.sent[receiver] ||
+        (refreshedLikes[session.address] || []).includes(receiver);
+      hasReceivedHeart =
+        !!hearts.received[receiver] ||
+        (refreshedLikes[receiver] || []).includes(session.address);
+    };
+    if (!hasSentHeart || !hasReceivedHeart) {
+      await ensureHearts();
+    }
     if (hasReceivedHeart && !hasSentHeart) {
       recordHeartBack(session.address, receiver);
       hasSentHeart = true;
