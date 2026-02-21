@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import type { Connection, PublicKey } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { WalletNotReadyError } from '@solana/wallet-adapter-base';
 import type { Session, Portfolio, Token, WalletType } from '@/types';
 import { STORAGE_KEYS, TOKEN_MINTS, PRICE_MAP } from '@/types';
 
@@ -25,86 +28,30 @@ const getConnection = async () => {
   return cachedConnection;
 };
 
-const isMobileDevice = () => {
-  if (typeof navigator === 'undefined') return false;
-  return /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
+const WALLET_NAMES: Record<WalletType, string> = {
+  phantom: 'Phantom',
+  solflare: 'Solflare',
 };
-
-const buildBrowseLink = (type: WalletType, url: string) => {
-  const encodedUrl = encodeURIComponent(url);
-  if (type === 'phantom') {
-    return `https://phantom.app/ul/browse/${encodedUrl}`;
-  }
-  return `https://solflare.com/ul/v1/browse/${encodedUrl}`;
-};
-
-
-interface PhantomProvider {
-  publicKey: PublicKey | null;
-  isConnected: boolean;
-  connect: () => Promise<{ publicKey?: PublicKey }>;
-  disconnect: () => Promise<void>;
-  signMessage: (message: Uint8Array) => Promise<{ signature?: Uint8Array } | Uint8Array>;
-  on?: (event: string, callback: (args: any) => void) => void;
-  isPhantom?: boolean;
-  isSolflare?: boolean;
-}
-
-interface SolflareProvider {
-  publicKey: PublicKey | null;
-  isConnected: boolean;
-  connect: (opts?: any) => Promise<{ publicKey?: PublicKey } | void>;
-  disconnect: () => Promise<void>;
-  signMessage: (message: Uint8Array) => Promise<{ signature?: Uint8Array } | Uint8Array>;
-  isSolflare?: boolean;
-}
-
-declare global {
-  interface Window {
-    phantom?: { solana?: PhantomProvider };
-    solflare?: SolflareProvider;
-    solana?: PhantomProvider;
-  }
-}
 
 export function useWallet() {
+  const {
+    publicKey,
+    connect: adapterConnect,
+    disconnect: adapterDisconnect,
+    connecting,
+    wallet,
+    select,
+    signMessage,
+  } = useSolanaWallet();
+  const { setVisible } = useWalletModal();
   const [session, setSession] = useState<Session | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeAdapter, setActiveAdapter] = useState<WalletType | null>(null);
 
-  // Load session on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.session);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSession(parsed);
-        // Fetch portfolio for saved session
-        fetchPortfolio(parsed.address).then(setPortfolio).catch((error) => {
-          console.warn('Failed to fetch portfolio', error);
-        });
-      } catch (e) {
-        console.error('Failed to load session', e);
-      }
-    }
-  }, []);
-
-  const normalizeProvider = (provider: any) => provider?.solana || provider;
-
-  const getProvider = (type: WalletType): PhantomProvider | SolflareProvider | null => {
-    if (type === 'phantom') {
-      const phantom = window.phantom?.solana;
-      const fallback = window.solana?.isPhantom ? window.solana : null;
-      return normalizeProvider(phantom || fallback);
-    }
-    if (type === 'solflare') {
-      const solflare = window.solflare;
-      const fallback = window.solana?.isSolflare ? window.solana : null;
-      return normalizeProvider(solflare || fallback);
-    }
-    return null;
-  };
+    setIsConnecting(connecting);
+  }, [connecting]);
 
   const fetchPortfolio = async (address: string): Promise<Portfolio> => {
     try {
@@ -199,26 +146,19 @@ export function useWallet() {
   };
 
   const signInWithWallet = async (
-    provider: PhantomProvider | SolflareProvider,
-    address: string
+    address: string,
+    signMessageFn?: (message: Uint8Array) => Promise<Uint8Array>
   ): Promise<Session> => {
     const message = `SUGAR wants you to sign in with your Solana wallet.\nWallet: ${address}\nNonce: ${crypto.randomUUID()}\nIssued At: ${new Date().toISOString()}`;
     const payload = new TextEncoder().encode(message);
     let signature: Uint8Array | null = null;
     let verified = false;
-    if (typeof provider.signMessage === 'function') {
+    if (signMessageFn) {
       try {
-        const signed = await provider.signMessage(payload);
-        const signatureRaw = signed instanceof Uint8Array ? signed : signed.signature;
-        signature = toUint8Array(signatureRaw);
+        const signed = await signMessageFn(payload);
+        signature = toUint8Array(signed);
       } catch (error) {
-        try {
-          const signed = await provider.signMessage(payload);
-          const signatureRaw = signed instanceof Uint8Array ? signed : signed.signature;
-          signature = toUint8Array(signatureRaw);
-        } catch (innerError) {
-          console.warn('signMessage failed, continuing without signature', innerError);
-        }
+        console.warn('signMessage failed, continuing without signature', error);
       }
     }
 
@@ -246,49 +186,57 @@ export function useWallet() {
     return session;
   };
 
+  useEffect(() => {
+    if (!publicKey) {
+      localStorage.removeItem(STORAGE_KEYS.session);
+      setSession(null);
+      setPortfolio(null);
+      setActiveAdapter(null);
+      return;
+    }
+    const address = publicKey.toBase58();
+    const adapterName = wallet?.adapter?.name;
+    if (adapterName === 'Phantom') {
+      setActiveAdapter('phantom');
+    } else if (adapterName === 'Solflare') {
+      setActiveAdapter('solflare');
+    }
+    if (session?.address === address) return;
+    void signInWithWallet(address, signMessage);
+    void fetchPortfolio(address)
+      .then((nextPortfolio) => {
+        setPortfolio(nextPortfolio);
+      })
+      .catch((error) => {
+        console.warn('Failed to fetch portfolio', error);
+      });
+  }, [publicKey, wallet?.adapter?.name, signMessage, session?.address]);
+
   const connect = async (type: WalletType) => {
     setIsConnecting(true);
     try {
-      const provider = getProvider(type);
-      if (!provider) {
-        if (isMobileDevice() && typeof window !== 'undefined') {
-          const url = buildBrowseLink(type, window.location.href);
-          return { address: null, portfolio: null, mobileLink: url };
-        }
-        throw new Error(`${type} wallet not found. Please install the extension.`);
+      const walletName = WALLET_NAMES[type];
+      if (!walletName) {
+        throw new Error('Unsupported wallet type');
       }
-
-      // Connect
-      let connectResult: any;
-      try {
-        connectResult = await provider.connect({ onlyIfTrusted: false });
-      } catch (error) {
-        connectResult = await provider.connect();
+      if (!wallet || wallet.adapter?.name !== walletName) {
+        select(walletName);
       }
-      const publicKey = provider.publicKey || (connectResult as any)?.publicKey;
+      await adapterConnect();
       const address =
-        (typeof publicKey === 'string' && publicKey) ||
         publicKey?.toBase58?.() ||
-        publicKey?.toString?.();
+        wallet?.adapter?.publicKey?.toBase58?.() ||
+        wallet?.adapter?.publicKey?.toString?.() ||
+        null;
       if (!address) {
         throw new Error('Failed to get wallet address');
       }
-
-      // Sign in
-      await signInWithWallet(provider, address);
-
-      // Fetch portfolio in the background so wallet connect feels instant
-      void fetchPortfolio(address)
-        .then((nextPortfolio) => {
-          setPortfolio(nextPortfolio);
-        })
-        .catch((error) => {
-          console.warn('Failed to fetch portfolio', error);
-        });
-      setActiveAdapter(type);
-
       return { address, portfolio: null };
     } catch (error) {
+      if (error instanceof WalletNotReadyError) {
+        setVisible(true);
+        throw new Error('Wallet not detected. On mobile, open in the wallet app browser to connect.');
+      }
       console.error('Wallet connection failed:', error);
       throw error;
     } finally {
@@ -298,10 +246,7 @@ export function useWallet() {
 
   const disconnect = async () => {
     try {
-      const provider = activeAdapter ? getProvider(activeAdapter) : null;
-      if (provider && 'disconnect' in provider) {
-        await provider.disconnect();
-      }
+      await adapterDisconnect();
     } catch (error) {
       console.warn('Disconnect error', error);
     }
