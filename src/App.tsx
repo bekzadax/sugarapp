@@ -527,11 +527,11 @@ function App() {
       </section>
 
       {/* Main Content */}
-      <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 overflow-hidden">
+      <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 overflow-visible md:overflow-hidden">
         {/* Left Column - Match Card (Feed/Matches views) */}
         {view === 'feed' && (
-          <section className="col-span-12 lg:col-span-7 xl:col-span-8 h-[calc(100vh-120px)] flex flex-col justify-center">
-            <div className="relative w-full max-w-lg mx-auto h-full max-h-[700px]">
+          <section className="col-span-12 lg:col-span-7 xl:col-span-8 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)] flex flex-col justify-center py-4 md:py-0">
+            <div className="relative w-full max-w-lg mx-auto h-full max-h-[620px] md:max-h-[700px]">
               {/* Card Stack Effect */}
               <div className="absolute top-4 left-4 right-[-10px] bottom-[-10px] bg-white opacity-40 rounded-[32px] scale-95 transform translate-y-4 -z-10 border border-white/40 shadow-sm" />
               <div className="absolute top-8 left-8 right-[-20px] bottom-[-20px] bg-white opacity-20 rounded-[32px] scale-90 transform translate-y-8 -z-20 border border-white/20 shadow-sm" />
@@ -550,7 +550,7 @@ function App() {
 
         {/* Left Column - Messages */}
         {view === 'messages' && session && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-120px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <Messages
               messages={messages}
               session={session}
@@ -570,7 +570,7 @@ function App() {
         )}
 
         {view === 'notifications' && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-120px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <Notifications
               notifications={userNotifications}
               onNotificationClick={(note) => {
@@ -595,7 +595,7 @@ function App() {
 
         {/* Left Column - Profile */}
         {view === 'profile' && session && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-120px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             {profileReady ? (
               <ProfilePage
                 profile={profile}
@@ -621,14 +621,14 @@ function App() {
 
         {/* Left Column - KOL */}
         {view === 'kol' && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-120px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <KOLLeaderboard portfolio={activePortfolio} />
           </section>
         )}
 
         {/* Right Column - Sidebar */}
         {(view !== 'messages' && view !== 'profile' && view !== 'kol' && view !== 'notifications') && (
-        <aside className="col-span-12 lg:col-span-5 xl:col-span-4 h-[calc(100vh-120px)] flex flex-col overflow-hidden">
+        <aside className="col-span-12 lg:col-span-5 xl:col-span-4 md:h-[calc(100vh-120px)] h-auto flex flex-col overflow-hidden mt-6 lg:mt-0">
           <div className="bg-white/70 backdrop-blur-xl rounded-3xl h-full flex flex-col shadow-sm border border-white/60 overflow-hidden">
             <AnimatePresence mode="wait">
               {view === 'feed' ? (

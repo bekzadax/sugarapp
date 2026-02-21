@@ -21,9 +21,14 @@ export function MatchCard({
   onConnect,
 }: MatchCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchDelta, setTouchDelta] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     setImageLoaded(false);
+    setTouchDelta({ x: 0, y: 0 });
+    setIsDragging(false);
   }, [match?.image]);
 
   if (!match) {
@@ -83,9 +88,48 @@ export function MatchCard({
   const instagramHandle = cleanHandle(match.instagram, 'instagram.com');
   const xHandle = cleanHandle(match.xHandle, 'x.com');
   const initials = match.username ? match.username.replace('@', '').slice(0, 2).toUpperCase() : 'SG';
+  const translateX = isDragging ? touchDelta.x : 0;
+  const rotate = isDragging ? touchDelta.x / 20 : 0;
 
   return (
-    <div className="relative w-full h-full bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 group">
+    <div
+      className="relative w-full h-full bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 group touch-pan-y"
+      style={{
+        transform: `translateX(${translateX}px) rotate(${rotate}deg)`,
+        transition: isDragging ? 'none' : 'transform 0.2s ease',
+      }}
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        setTouchStart({ x: touch.clientX, y: touch.clientY });
+        setIsDragging(true);
+      }}
+      onTouchMove={(event) => {
+        if (!touchStart) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - touchStart.x;
+        const dy = touch.clientY - touchStart.y;
+        if (Math.abs(dx) > Math.abs(dy) && event.cancelable) {
+          event.preventDefault();
+        }
+        setTouchDelta({ x: dx, y: dy });
+      }}
+      onTouchEnd={() => {
+        if (!touchStart) return;
+        const dx = touchDelta.x;
+        const dy = touchDelta.y;
+        const shouldSwipe = Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy);
+        if (shouldSwipe) {
+          if (dx > 0) {
+            onHeart?.();
+          } else {
+            onSkip?.();
+          }
+        }
+        setTouchStart(null);
+        setTouchDelta({ x: 0, y: 0 });
+        setIsDragging(false);
+      }}
+    >
       {/* Image Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
@@ -253,6 +297,12 @@ export function MatchCard({
           </motion.button>
         </div>
       )}
+
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[11px] text-white/80 md:hidden">
+        <span>Swipe right to heart</span>
+        <span className="opacity-50">•</span>
+        <span>Swipe left to skip</span>
+      </div>
     </div>
   );
 }

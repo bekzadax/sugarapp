@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Wallet, ChevronDown, LogOut, User } from 'lucide-react';
+import { Bell, Wallet, ChevronDown, LogOut, User, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Session, User as UserType } from '@/types';
 import logoUrl from '@/assets/logo.jpeg';
@@ -28,6 +28,7 @@ export function Header({
   portfolioBalance,
 }: HeaderProps) {
   const [isWalletMenuOpen, setIsWalletMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +52,12 @@ export function Header({
     { key: 'feed', label: 'FEED' },
     { key: 'messages', label: 'MESSAGES' },
     { key: 'kol', label: 'LEADERBOARD' },
+  ];
+  const mobileItems = [
+    { key: 'feed', label: 'Feed' },
+    { key: 'messages', label: 'Messages' },
+    { key: 'kol', label: 'Leaderboard' },
+    { key: 'notifications', label: 'Notifications', action: onNotifications },
   ];
 
   return (
@@ -95,6 +102,15 @@ export function Header({
 
       {/* Actions */}
       <div className="flex items-center gap-3">
+        {/* Mobile Menu */}
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="md:hidden w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
         {/* Notifications */}
         <button
           onClick={onNotifications}
@@ -190,6 +206,60 @@ export function Header({
           </AnimatePresence>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm md:hidden"
+          >
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-x-4 top-6 rounded-3xl bg-white shadow-xl border border-white/80 p-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm font-semibold text-slate-600">Navigation</div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid gap-2">
+                {mobileItems.map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      item.action?.();
+                      onViewChange(item.key as any);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold transition-colors ${
+                      currentView === item.key
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="absolute inset-0 w-full h-full"
+              aria-label="Close menu backdrop"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
