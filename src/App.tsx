@@ -52,6 +52,7 @@ function App() {
     voteComment,
     generateMatches,
     sendHeart,
+    recordHeartBack,
     recordSkip,
     advanceMatch,
     saveProfile,
@@ -265,11 +266,8 @@ function App() {
     setIsConnecting(true);
     try {
       const result = await connect(type);
-      if (!result?.portfolio && result?.address) {
-        await refreshPortfolio();
-      }
-      if (!result?.portfolio) {
-        toast.error('Portfolio scan failed. Please try again.');
+      if (result?.address) {
+        void refreshPortfolio().catch(() => {});
       }
       toast.success('Wallet connected successfully!');
     } catch (error: any) {
@@ -364,10 +362,14 @@ function App() {
     } catch {
       likesMap = {};
     }
-    const hasSentHeart =
+    let hasSentHeart =
       !!hearts.sent[receiver] || (likesMap[session.address] || []).includes(receiver);
     const hasReceivedHeart =
       !!hearts.received[receiver] || (likesMap[receiver] || []).includes(session.address);
+    if (hasReceivedHeart && !hasSentHeart) {
+      recordHeartBack(session.address, receiver);
+      hasSentHeart = true;
+    }
     const isMutual = hasSentHeart && hasReceivedHeart;
     if (!isMutual && !hasHistory) {
       toast.error('You can only message after both hearts are sent.');

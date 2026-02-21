@@ -259,17 +259,17 @@ export function useWallet() {
       // Sign in
       await signInWithWallet(provider, address);
 
-      // Fetch portfolio
-      let portfolio: Portfolio | null = null;
-      try {
-        portfolio = await fetchPortfolio(address);
-        setPortfolio(portfolio);
-      } catch (error) {
-        console.warn('Failed to fetch portfolio', error);
-      }
+      // Fetch portfolio in the background so wallet connect feels instant
+      void fetchPortfolio(address)
+        .then((nextPortfolio) => {
+          setPortfolio(nextPortfolio);
+        })
+        .catch((error) => {
+          console.warn('Failed to fetch portfolio', error);
+        });
       setActiveAdapter(type);
 
-      return { address, portfolio };
+      return { address, portfolio: null };
     } catch (error) {
       console.error('Wallet connection failed:', error);
       throw error;

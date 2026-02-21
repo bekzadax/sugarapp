@@ -1832,6 +1832,36 @@ export function useAppState() {
     [updateTrends, supabaseEnabled]
   );
 
+  const recordHeartBack = useCallback(
+    (senderAddress: string, targetAddress: string) => {
+      const raw = localStorage.getItem(LIKE_KEY);
+      const likes: Record<string, string[]> = raw ? JSON.parse(raw) : {};
+      const senderLikes = new Set(likes[senderAddress] || []);
+      const alreadySent = senderLikes.has(targetAddress);
+      if (!alreadySent) {
+        senderLikes.add(targetAddress);
+        likes[senderAddress] = Array.from(senderLikes);
+        localStorage.setItem(LIKE_KEY, JSON.stringify(likes));
+      }
+      setHearts((prev) => ({
+        ...prev,
+        sent: { ...prev.sent, [targetAddress]: Date.now() },
+        total: alreadySent ? prev.total : prev.total + 1,
+      }));
+      if (supabaseEnabled && supabase) {
+        void supabase.from('hearts').upsert(
+          {
+            sender: senderAddress,
+            target: targetAddress,
+            timestamp: Date.now(),
+          },
+          { onConflict: 'sender,target' }
+        );
+      }
+    },
+    [supabaseEnabled]
+  );
+
   const recordSkip = useCallback((senderAddress: string, targetAddress: string) => {
     const raw = localStorage.getItem(SKIP_KEY);
     const skips: Record<string, string[]> = raw ? JSON.parse(raw) : {};
@@ -2393,6 +2423,7 @@ export function useAppState() {
     voteComment,
     generateMatches,
     sendHeart,
+    recordHeartBack,
     recordSkip,
     advanceMatch,
     removeMatch,
@@ -4009,7 +4040,7 @@ const CANDIDATES = [
 const CANDIDATE_USERS: User[] = CANDIDATES.map((candidate) => normalizeCandidateUser(candidate));
 
 const DEFAULT_INBOX_MESSAGES = [
-  { sender: 'GkN2d7uYz3gT7Q3h6S2k1N8d9kX1m9e3tD2cY7g1s4mP', content: "You seem pretty. Let's chat?" },
+  { sender: 'GkN2d7uYz3gT7Q3h6S2k1N8d9kX1m9e3tD2cY7g1s4mP', content: "Your vibe stands out. Want to chat?" },
   { sender: '7y5mH7k2W8a4t7L2p8q2K5V5m7Q3n9s9F7z2e7b3Q2u', content: 'Your vibe is immaculate. Coffee this week?' },
   { sender: '8bZ4s6z6Q2m5W7V9o2s6Y8k5J9x1D4p8F7a6L3r2v9q', content: 'I think we’d match well. Want to talk?' },
 ];
