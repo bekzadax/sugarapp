@@ -25,6 +25,27 @@ const getConnection = async () => {
   return cachedConnection;
 };
 
+const isMobileDevice = () => {
+  if (typeof navigator === 'undefined') return false;
+  return /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
+};
+
+const buildDeepLink = (type: WalletType, url: string) => {
+  const encodedUrl = encodeURIComponent(url);
+  const encodedRef = encodeURIComponent(url);
+  if (type === 'phantom') {
+    return `https://phantom.app/ul/browse/${encodedUrl}?ref=${encodedRef}`;
+  }
+  return `https://solflare.com/ul/v1/browse/${encodedUrl}?ref=${encodedRef}`;
+};
+
+const openWalletDeepLink = (type: WalletType) => {
+  if (typeof window === 'undefined') return;
+  const url = window.location.href;
+  const deeplink = buildDeepLink(type, url);
+  window.location.href = deeplink;
+};
+
 interface PhantomProvider {
   publicKey: PublicKey | null;
   isConnected: boolean;
@@ -237,6 +258,10 @@ export function useWallet() {
     try {
       const provider = getProvider(type);
       if (!provider) {
+        if (isMobileDevice()) {
+          openWalletDeepLink(type);
+          return { address: null, portfolio: null, redirected: true };
+        }
         throw new Error(`${type} wallet not found. Please install the extension.`);
       }
 

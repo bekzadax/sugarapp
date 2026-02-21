@@ -266,6 +266,10 @@ function App() {
     setIsConnecting(true);
     try {
       const result = await connect(type);
+      if (result?.redirected) {
+        toast.message(`Opening ${type === 'phantom' ? 'Phantom' : 'Solflare'}…`);
+        return;
+      }
       if (result?.address) {
         void refreshPortfolio().catch(() => {});
       }
@@ -537,6 +541,7 @@ function App() {
                 match={currentMatch}
                 onSkip={handleSkip}
                 onHeart={handleSendHeart}
+                onConnect={handleConnect}
                 emptyState={session ? 'nomore' : 'connect'}
               />
             </div>

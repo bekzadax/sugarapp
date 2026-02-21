@@ -9,6 +9,7 @@ interface MatchCardProps {
   onHeart?: () => void;
   showActions?: boolean;
   emptyState?: 'connect' | 'nomore';
+  onConnect?: (type: 'phantom' | 'solflare') => void;
 }
 
 export function MatchCard({
@@ -17,6 +18,7 @@ export function MatchCard({
   onHeart,
   showActions = true,
   emptyState = 'nomore',
+  onConnect,
 }: MatchCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -38,6 +40,22 @@ export function MatchCard({
           <p className="text-slate-500">
             {isConnect ? 'Connect your wallet to see matches.' : 'Check back later for new connections!'}
           </p>
+          {isConnect && onConnect && (
+            <div className="mt-6 flex flex-col gap-2 items-center">
+              <button
+                onClick={() => onConnect('phantom')}
+                className="w-full max-w-[220px] px-4 py-2.5 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
+              >
+                Connect Phantom
+              </button>
+              <button
+                onClick={() => onConnect('solflare')}
+                className="w-full max-w-[220px] px-4 py-2.5 rounded-full bg-white text-slate-700 text-sm font-semibold border border-slate-200 hover:bg-slate-50 transition-colors"
+              >
+                Connect Solflare
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
