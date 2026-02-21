@@ -848,6 +848,81 @@ export function useAppState() {
     }
   }, [supabaseEnabled]);
 
+  const subscribeToProfiles = useCallback(() => {
+    const client = supabase;
+    if (!supabaseEnabled || !client) return () => {};
+    const channel = client
+      .channel('profiles:changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        (payload) => {
+          const row: any = payload.new;
+          if (!row || !row.wallet_address) return;
+          const mapped = mapProfileRow(row);
+          const profiles = readProfiles();
+          profiles[mapped.wallet_address] = mapped;
+          writeProfiles(profiles);
+          setMatchDirectory((prev) => {
+            const next = { ...prev };
+            const rawTokens = Array.isArray(mapped.tokens) ? mapped.tokens : [];
+            const tokens = rawTokens
+              .map((token: any) => {
+                if (typeof token === 'string') {
+                  return { symbol: token, amount: 0, usdValue: 0 };
+                }
+                const amount = token.amount ?? 0;
+                const price = PRICE_MAP[token.symbol] || 0;
+                return {
+                  symbol: token.symbol,
+                  amount,
+                  usdValue: token.usdValue ?? amount * price,
+                };
+              })
+              .filter((token: any) => token.symbol);
+            const totalValue =
+              mapped.total_value ?? tokens.reduce((sum: number, t: Token) => sum + (t.usdValue || 0), 0);
+            const kolAvatar = KOL_AVATARS[mapped.wallet_address];
+            const image = kolAvatar ? `https://unavatar.io/x/${kolAvatar}` : mapped.photo || '';
+            next[mapped.wallet_address] = {
+              wallet_address: mapped.wallet_address,
+              username: mapped.username,
+              portfolio: {
+                tokens,
+                total_value: totalValue,
+                balance: tokens.find((t: Token) => t.symbol === 'SOL')?.amount || 0,
+                nfts: mapped.nfts || [],
+              },
+              match: {
+                score: 50,
+                sharedTokens: [],
+                sharedNfts: [],
+                diamondHands: false,
+              },
+              tokens,
+              nft_count: mapped.nft_count || 0,
+              total_value: totalValue,
+              hearts_sent: 0,
+              hearts_received: 0,
+              bio: mapped.bio || 'Open to new connections.',
+              age: mapped.age || 24,
+              distance: mapped.distance,
+              image,
+              gender: mapped.gender || 'female',
+              instagram: mapped.instagram,
+              xHandle: mapped.xHandle,
+              verified: mapped.verified ?? true,
+            };
+            return next;
+          });
+        }
+      )
+      .subscribe();
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [supabaseEnabled]);
+
   const syncSkipsFor = useCallback(async (walletAddress: string) => {
     if (supabaseEnabled && supabase) {
       try {
@@ -1862,6 +1937,29 @@ export function useAppState() {
     [supabaseEnabled]
   );
 
+  const checkMutualHeart = useCallback(
+    async (userAddress: string, otherAddress: string) => {
+      if (!supabaseEnabled || !supabase) {
+        return { sent: false, received: false };
+      }
+      try {
+        const { data } = await supabase
+          .from('hearts')
+          .select('sender,target')
+          .or(
+            `and(sender.eq.${userAddress},target.eq.${otherAddress}),and(sender.eq.${otherAddress},target.eq.${userAddress})`
+          );
+        const sent = !!data?.find((row) => row.sender === userAddress && row.target === otherAddress);
+        const received = !!data?.find((row) => row.sender === otherAddress && row.target === userAddress);
+        return { sent, received };
+      } catch (error) {
+        console.warn('Supabase check hearts error', error);
+        return { sent: false, received: false };
+      }
+    },
+    [supabaseEnabled]
+  );
+
   const recordSkip = useCallback((senderAddress: string, targetAddress: string) => {
     const raw = localStorage.getItem(SKIP_KEY);
     const skips: Record<string, string[]> = raw ? JSON.parse(raw) : {};
@@ -2424,6 +2522,7 @@ export function useAppState() {
     generateMatches,
     sendHeart,
     recordHeartBack,
+    checkMutualHeart,
     recordSkip,
     advanceMatch,
     removeMatch,
@@ -2447,6 +2546,7 @@ export function useAppState() {
     loadPostsFromSupabase,
     syncProfilesFromSupabase,
     loadProfileFromSupabase,
+    subscribeToProfiles,
     hydrateMessagesForUser,
     loadMessagesForUser,
     subscribeToMessages,

@@ -43,6 +43,12 @@ export function Header({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsWalletMenuOpen(false);
+    }
+  }, [isMobileMenuOpen]);
+
   const shortAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
@@ -222,6 +228,7 @@ export function Header({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] bg-slate-900/40 backdrop-blur-sm md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <motion.div
               initial={{ y: 40, opacity: 0 }}
@@ -229,6 +236,7 @@ export function Header({
               exit={{ y: 40, opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="absolute inset-x-4 top-6 rounded-3xl bg-white shadow-xl border border-white/80 p-4"
+              onClick={(event) => event.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="text-sm font-semibold text-slate-600">Navigation</div>
@@ -260,11 +268,6 @@ export function Header({
                 ))}
               </div>
             </motion.div>
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute inset-0 w-full h-full"
-              aria-label="Close menu backdrop"
-            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -14,6 +14,7 @@ interface MessagesProps {
   onSendMessage: (receiver: string, content: string, image?: string) => void;
   openUser?: string | null;
   onOpenConversation?: (otherAddress: string) => void;
+  onBack?: () => void;
 }
 
 export function Messages({
@@ -26,6 +27,7 @@ export function Messages({
   onSendMessage,
   openUser,
   onOpenConversation,
+  onBack,
 }: MessagesProps) {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
@@ -107,17 +109,47 @@ export function Messages({
     return name.replace('@', '').slice(0, 2).toUpperCase();
   };
 
+  const compressImage = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxSize = 1200;
+          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Canvas not supported'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => reject(new Error('Image load failed'));
+        img.src = reader.result as string;
+      };
+      reader.onerror = () => reject(new Error('Image read failed'));
+      reader.readAsDataURL(file);
+    });
+
   const handleSelectImage = (file?: File | null) => {
     if (!file) return;
     if (file.size > 3 * 1024 * 1024) {
       alert('Image too large. Please choose a file under 3MB.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    compressImage(file)
+      .then((data) => setImagePreview(data))
+      .catch(() => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
   };
 
   const clearImage = () => {
@@ -132,11 +164,22 @@ export function Messages({
       {!selectedUser ? (
         // Conversations List
         <div className="h-full flex flex-col">
-          <div className="p-6 border-b border-slate-100">
-            <h2 className="font-serif text-xl text-slate-800">Messages</h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Chat with your matches
-            </p>
+          <div className="p-6 border-b border-slate-100 flex items-center gap-3">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="md:hidden w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600"
+                aria-label="Back to feed"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
+            <div>
+              <h2 className="font-serif text-xl text-slate-800">Messages</h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Chat with your matches
+              </p>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -232,6 +275,15 @@ export function Messages({
             >
               <ArrowLeft className="w-5 h-5 text-slate-500" />
             </button>
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="md:hidden w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600"
+                aria-label="Back to feed"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
             {selectedMatch && (
               <>
                 <button

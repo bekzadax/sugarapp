@@ -53,6 +53,7 @@ function App() {
     generateMatches,
     sendHeart,
     recordHeartBack,
+    checkMutualHeart,
     recordSkip,
     advanceMatch,
     saveProfile,
@@ -78,6 +79,7 @@ function App() {
     ensureProfileForWallet,
     loadProfileForWallet,
     syncProfilesFromSupabase,
+    subscribeToProfiles,
     ensureLikedPostsFor,
     loadProfileFromSupabase,
     subscribeToHearts,
@@ -250,6 +252,14 @@ function App() {
   }, [session, syncProfilesFromSupabase]);
 
   useEffect(() => {
+    if (!session) return;
+    const unsubscribe = subscribeToProfiles();
+    return () => {
+      unsubscribe();
+    };
+  }, [session, subscribeToProfiles]);
+
+  useEffect(() => {
     if (session && profile) {
       ensureProfilePost(session.address, profile.username, appPortfolio);
     }
@@ -266,6 +276,11 @@ function App() {
     setIsConnecting(true);
     try {
       const result = await connect(type);
+      if (result?.mobileLink) {
+        toast.message(`Opening ${type === 'phantom' ? 'Phantom' : 'Solflare'}…`);
+        window.location.href = result.mobileLink;
+        return;
+      }
       if (result?.address) {
         void refreshPortfolio().catch(() => {});
       }
@@ -379,6 +394,11 @@ function App() {
     };
     if (!hasSentHeart || !hasReceivedHeart) {
       await ensureHearts();
+      if (!hasSentHeart || !hasReceivedHeart) {
+        const status = await checkMutualHeart(session.address, receiver);
+        hasSentHeart = hasSentHeart || status.sent;
+        hasReceivedHeart = hasReceivedHeart || status.received;
+      }
     }
     if (hasReceivedHeart && !hasSentHeart) {
       recordHeartBack(session.address, receiver);
@@ -570,6 +590,7 @@ function App() {
               scannedWalletAddress={scannedWalletAddress}
               onScanWallet={handleScanWallet}
               onSendMessage={handleSendMessage}
+              onBack={() => setView('feed')}
               openUser={activeChatUser}
               onOpenConversation={(otherAddress) => {
                 if (session) {
@@ -633,6 +654,15 @@ function App() {
         {/* Left Column - KOL */}
         {view === 'kol' && (
           <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
+            <div className="md:hidden mb-3">
+              <button
+                onClick={() => setView('feed')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-slate-200 text-slate-600 text-sm font-semibold"
+              >
+                <span className="text-lg leading-none">←</span>
+                Back to Feed
+              </button>
+            </div>
             <KOLLeaderboard portfolio={activePortfolio} />
           </section>
         )}
