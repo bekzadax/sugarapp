@@ -32,11 +32,10 @@ const isMobileDevice = () => {
 
 const buildDeepLink = (type: WalletType, url: string) => {
   const encodedUrl = encodeURIComponent(url);
-  const encodedRef = encodeURIComponent(url);
   if (type === 'phantom') {
-    return `https://phantom.app/ul/browse/${encodedUrl}?ref=${encodedRef}`;
+    return `https://phantom.app/ul/v1/connect?app_url=${encodedUrl}&redirect_link=${encodedUrl}`;
   }
-  return `https://solflare.com/ul/v1/browse/${encodedUrl}?ref=${encodedRef}`;
+  return `https://solflare.com/ul/v1/connect?app_url=${encodedUrl}&redirect_link=${encodedUrl}`;
 };
 
 const openWalletDeepLink = (type: WalletType) => {

@@ -48,7 +48,7 @@ export function Header({
   };
 
   const displayName = profile?.username || (session ? shortAddress(session.address) : 'Sign in');
-  const initials = session ? (profile?.username || 'SG').replace('@', '').slice(0, 2).toUpperCase() : 'IN';
+  const initials = session ? (profile?.username || 'SG').replace('@', '').slice(0, 2).toUpperCase() : '';
 
   const navItems = [
     { key: 'feed', label: 'FEED' },
@@ -133,12 +133,16 @@ export function Header({
             className="flex items-center gap-2 pl-2 pr-2 md:pr-3 py-1.5 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
           >
             <div
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-bold"
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-bold overflow-hidden"
               style={profile?.photo ? { backgroundImage: `url(${profile.photo})`, backgroundSize: 'cover' } : {}}
             >
               {!profile?.photo && (isConnecting && !session ? (
                 <span className="w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
-              ) : initials)}
+              ) : session ? (
+                initials
+              ) : (
+                <User className="w-4 h-4 text-white/90" />
+              ))}
             </div>
             <span className={`text-sm font-semibold text-slate-700 hidden sm:block ${isConnecting && !session ? 'opacity-0' : ''}`}>
               {displayName}
@@ -160,9 +164,6 @@ export function Header({
               >
                 {!session ? (
                   <>
-                    <div className="px-3 pb-2 text-[11px] text-slate-500 leading-relaxed">
-                      Connected wallet addresses are not publicly displayed or shared with other users. Wallet information is used solely for app functionality and optional net worth verification purposes. We do not collect, sell, or use wallet data for any other purpose.
-                    </div>
                     <button
                       onClick={() => {
                         onConnect('phantom');
@@ -258,11 +259,6 @@ export function Header({
                   </button>
                 ))}
               </div>
-              {!session && (
-                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-3 text-[11px] text-slate-500 leading-relaxed">
-                  Connected wallet addresses are not publicly displayed or shared with other users. Wallet information is used solely for app functionality and optional net worth verification purposes. We do not collect, sell, or use wallet data for any other purpose.
-                </div>
-              )}
             </motion.div>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
