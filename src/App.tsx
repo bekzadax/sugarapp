@@ -497,6 +497,7 @@ function App() {
         session={session}
         profile={profile}
         notificationsCount={userNotifications.filter((n) => !n.read).length}
+        isConnecting={isConnecting}
         onConnect={handleConnect}
         onDisconnect={handleDisconnect}
         onViewChange={setView}

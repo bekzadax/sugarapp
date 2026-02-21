@@ -8,6 +8,7 @@ interface HeaderProps {
   session: Session | null;
   profile: UserType | null;
   notificationsCount: number;
+  isConnecting?: boolean;
   onConnect: (type: 'phantom' | 'solflare') => void;
   onDisconnect: () => void;
   onViewChange: (view: 'feed' | 'messages' | 'profile' | 'kol' | 'notifications') => void;
@@ -20,6 +21,7 @@ export function Header({
   session,
   profile,
   notificationsCount,
+  isConnecting = false,
   onConnect,
   onDisconnect,
   onViewChange,
@@ -45,8 +47,8 @@ export function Header({
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
-  const displayName = profile?.username || (session ? shortAddress(session.address) : 'Connect');
-  const initials = (profile?.username || 'SG').replace('@', '').slice(0, 2).toUpperCase();
+  const displayName = profile?.username || (session ? shortAddress(session.address) : 'Sign in');
+  const initials = session ? (profile?.username || 'SG').replace('@', '').slice(0, 2).toUpperCase() : 'IN';
 
   const navItems = [
     { key: 'feed', label: 'FEED' },
@@ -101,11 +103,11 @@ export function Header({
       </nav>
 
       {/* Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
         {/* Mobile Menu */}
         <button
           onClick={() => setIsMobileMenuOpen(true)}
-          className="md:hidden w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+          className="md:hidden w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -114,7 +116,7 @@ export function Header({
         {/* Notifications */}
         <button
           onClick={onNotifications}
-          className="relative w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+          className="relative w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
         >
           <Bell className="w-5 h-5" />
           {notificationsCount > 0 && (
@@ -128,21 +130,23 @@ export function Header({
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => session ? setIsWalletMenuOpen(!isWalletMenuOpen) : setIsWalletMenuOpen(true)}
-            className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white/70 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
+            className="flex items-center gap-2 pl-2 pr-2 md:pr-3 py-1.5 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
           >
             <div
               className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-bold"
               style={profile?.photo ? { backgroundImage: `url(${profile.photo})`, backgroundSize: 'cover' } : {}}
             >
-              {!profile?.photo && initials}
+              {!profile?.photo && (isConnecting && !session ? (
+                <span className="w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
+              ) : initials)}
             </div>
-            <span className="text-sm font-semibold text-slate-700 hidden sm:block">
+            <span className={`text-sm font-semibold text-slate-700 hidden sm:block ${isConnecting && !session ? 'opacity-0' : ''}`}>
               {displayName}
               {profile?.gender === 'male' && portfolioBalance !== undefined && (
                 <span className="text-slate-400 ml-1">• {portfolioBalance.toFixed(2)} SOL</span>
               )}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
           </button>
 
           <AnimatePresence>
@@ -152,10 +156,13 @@ export function Header({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-14 bg-white border border-slate-100 rounded-2xl shadow-xl p-2 w-52 z-50"
+                className="absolute right-0 top-14 bg-white border border-slate-100 rounded-2xl shadow-xl p-3 w-56 z-50"
               >
                 {!session ? (
                   <>
+                    <div className="px-3 pb-2 text-[11px] text-slate-500 leading-relaxed">
+                      Connected wallet addresses are not publicly displayed or shared with other users. Wallet information is used solely for app functionality and optional net worth verification purposes. We do not collect, sell, or use wallet data for any other purpose.
+                    </div>
                     <button
                       onClick={() => {
                         onConnect('phantom');
@@ -220,7 +227,7 @@ export function Header({
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 40, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-x-4 top-6 rounded-3xl bg-white shadow-xl border border-white/80 p-5"
+              className="absolute inset-x-4 top-6 rounded-3xl bg-white shadow-xl border border-white/80 p-4"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="text-sm font-semibold text-slate-600">Navigation</div>
@@ -251,6 +258,11 @@ export function Header({
                   </button>
                 ))}
               </div>
+              {!session && (
+                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-3 text-[11px] text-slate-500 leading-relaxed">
+                  Connected wallet addresses are not publicly displayed or shared with other users. Wallet information is used solely for app functionality and optional net worth verification purposes. We do not collect, sell, or use wallet data for any other purpose.
+                </div>
+              )}
             </motion.div>
             <button
               onClick={() => setIsMobileMenuOpen(false)}

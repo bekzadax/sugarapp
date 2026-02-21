@@ -61,6 +61,11 @@ export function MatchCard({
               </button>
             </div>
           )}
+          {isConnect && (
+            <div className="mt-4 text-[11px] text-slate-400 leading-relaxed">
+              Connected wallet addresses are not publicly displayed or shared with other users. Wallet information is used solely for app functionality and optional net worth verification purposes. We do not collect, sell, or use wallet data for any other purpose.
+            </div>
+          )}
         </div>
       </div>
     );
