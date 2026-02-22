@@ -56,6 +56,7 @@ export function useWallet() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeAdapter, setActiveAdapter] = useState<WalletType | null>(null);
   const cachedSessionRef = useRef<Session | null>(null);
+  const lastPortfolioFetchRef = useRef(0);
 
   useEffect(() => {
     try {
@@ -74,6 +75,30 @@ export function useWallet() {
   useEffect(() => {
     setIsConnecting(connecting);
   }, [connecting]);
+
+  const schedulePortfolioFetch = (address: string, force = false) => {
+    const now = Date.now();
+    if (!force && now - lastPortfolioFetchRef.current < 120000) {
+      return;
+    }
+    lastPortfolioFetchRef.current = now;
+    const run = () => {
+      fetchPortfolio(address)
+        .then((nextPortfolio) => {
+          setPortfolio(nextPortfolio);
+        })
+        .catch((error) => {
+          console.warn('Failed to fetch portfolio', error);
+        });
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => run(), { timeout: 1200 });
+    } else if (typeof window !== 'undefined') {
+      window.setTimeout(run, 200);
+    } else {
+      run();
+    }
+  };
 
   const fetchPortfolio = async (address: string): Promise<Portfolio> => {
     try {
@@ -215,13 +240,7 @@ export function useWallet() {
       if (cachedSession?.address) {
         setSession(cachedSession);
         if (!portfolio) {
-          void fetchPortfolio(cachedSession.address)
-            .then((nextPortfolio) => {
-              setPortfolio(nextPortfolio);
-            })
-            .catch((error) => {
-              console.warn('Failed to fetch portfolio', error);
-            });
+          schedulePortfolioFetch(cachedSession.address);
         }
       } else {
         setSession(null);
@@ -243,13 +262,7 @@ export function useWallet() {
     } else if (session?.address !== address) {
       void signInWithWallet(address, signMessage);
     }
-    void fetchPortfolio(address)
-      .then((nextPortfolio) => {
-        setPortfolio(nextPortfolio);
-      })
-      .catch((error) => {
-        console.warn('Failed to fetch portfolio', error);
-      });
+    schedulePortfolioFetch(address);
   }, [publicKey, wallet?.adapter?.name, signMessage, session?.address]);
 
   const connect = async (type: WalletType): Promise<WalletConnectResult> => {
@@ -311,9 +324,13 @@ export function useWallet() {
     cachedSessionRef.current = null;
   };
 
-  const refreshPortfolio = async () => {
+  const refreshPortfolio = async (force = false) => {
     if (session?.address) {
+      if (!force && Date.now() - lastPortfolioFetchRef.current < 60000) {
+        return portfolio;
+      }
       const newPortfolio = await fetchPortfolio(session.address);
+      lastPortfolioFetchRef.current = Date.now();
       setPortfolio(newPortfolio);
       return newPortfolio;
     }

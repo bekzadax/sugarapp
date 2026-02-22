@@ -159,7 +159,6 @@ function App() {
       await loadNotificationsForUser(session.address);
       if (!active) return;
       seedMessagesFor(session.address);
-      refreshPortfolio().catch(() => {});
       const ensured = ensureProfileForWallet(
         session.address,
         { username: `@${session.address.slice(0, 8)}` },
@@ -209,10 +208,18 @@ function App() {
 
   useEffect(() => {
     if (!session) return;
-    const id = window.setInterval(() => {
-      loadMessagesForUser(session.address);
-    }, 15000);
-    return () => window.clearInterval(id);
+    const runSync = () => {
+      if (document.visibilityState === 'visible') {
+        loadMessagesForUser(session.address);
+      }
+    };
+    const id = window.setInterval(runSync, 60000);
+    const onVisible = () => runSync();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [session, loadMessagesForUser]);
 
   useEffect(() => {
@@ -252,11 +259,19 @@ function App() {
 
   useEffect(() => {
     if (!session) return;
-    syncProfilesFromSupabase();
-    const id = window.setInterval(() => {
-      syncProfilesFromSupabase();
-    }, 60000);
-    return () => window.clearInterval(id);
+    const runSync = () => {
+      if (document.visibilityState === 'visible') {
+        syncProfilesFromSupabase();
+      }
+    };
+    runSync();
+    const id = window.setInterval(runSync, 5 * 60 * 1000);
+    const onVisible = () => runSync();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [session, syncProfilesFromSupabase]);
 
   useEffect(() => {
