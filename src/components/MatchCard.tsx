@@ -149,7 +149,7 @@ export function MatchCard({
           <img
             src={match.image}
             alt={match.username}
-            loading="eager"
+            loading="lazy"
             decoding="async"
             onLoad={() => setImageLoaded(true)}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
@@ -303,11 +303,6 @@ export function MatchCard({
         </div>
       )}
 
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[11px] text-white/80 md:hidden">
-        <span>Swipe right to heart</span>
-        <span className="opacity-50">•</span>
-        <span>Swipe left to skip</span>
-      </div>
     </div>
   );
 }

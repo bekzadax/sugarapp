@@ -1805,6 +1805,15 @@ export function useAppState() {
         unique = [];
       }
 
+      const seedSet = new Set<string>([
+        ...KOL_PROFILES.map((candidate) => candidate.wallet_address),
+        ...CANDIDATE_USERS.map((candidate) => candidate.wallet_address),
+      ]);
+      const realUserSet = new Set(
+        extraCandidates
+          .filter((candidate) => !seedSet.has(candidate.wallet_address))
+          .map((candidate) => candidate.wallet_address)
+      );
       const verifiedSet = new Set(extraCandidates.map((candidate) => candidate.wallet_address));
       const matches = unique.map((candidate) =>
         buildMatchCandidate(candidate, userPortfolio, verifiedSet)
@@ -1816,6 +1825,9 @@ export function useAppState() {
       const preferredCandidateGender =
         preferredGender === 'female' ? 'male' : preferredGender === 'male' ? 'female' : null;
       matches.sort((a, b) => {
+        const aReal = realUserSet.has(a.wallet_address) ? 0 : 1;
+        const bReal = realUserSet.has(b.wallet_address) ? 0 : 1;
+        if (aReal !== bReal) return aReal - bReal;
         if (preferredCandidateGender === 'female') {
           const rank = (candidate: MatchCandidate) => {
             if (candidate.gender === 'female' && candidate.verified) return 0;

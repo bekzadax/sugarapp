@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Connection } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
 import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react';
@@ -55,6 +55,21 @@ export function useWallet() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeAdapter, setActiveAdapter] = useState<WalletType | null>(null);
+  const cachedSessionRef = useRef<Session | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.session);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Session;
+        if (parsed?.address) {
+          cachedSessionRef.current = parsed;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load stored session', error);
+    }
+  }, []);
 
   useEffect(() => {
     setIsConnecting(connecting);
@@ -190,15 +205,29 @@ export function useWallet() {
 
     localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(session));
     setSession(session);
+    cachedSessionRef.current = session;
     return session;
   };
 
   useEffect(() => {
     if (!publicKey) {
-      localStorage.removeItem(STORAGE_KEYS.session);
-      setSession(null);
-      setPortfolio(null);
-      setActiveAdapter(null);
+      const cachedSession = cachedSessionRef.current;
+      if (cachedSession?.address) {
+        setSession(cachedSession);
+        if (!portfolio) {
+          void fetchPortfolio(cachedSession.address)
+            .then((nextPortfolio) => {
+              setPortfolio(nextPortfolio);
+            })
+            .catch((error) => {
+              console.warn('Failed to fetch portfolio', error);
+            });
+        }
+      } else {
+        setSession(null);
+        setPortfolio(null);
+        setActiveAdapter(null);
+      }
       return;
     }
     const address = publicKey.toBase58();
@@ -208,8 +237,12 @@ export function useWallet() {
     } else if (adapterName === 'Solflare') {
       setActiveAdapter('solflare');
     }
-    if (session?.address === address) return;
-    void signInWithWallet(address, signMessage);
+    const cachedSession = cachedSessionRef.current;
+    if (cachedSession?.address === address) {
+      setSession(cachedSession);
+    } else if (session?.address !== address) {
+      void signInWithWallet(address, signMessage);
+    }
     void fetchPortfolio(address)
       .then((nextPortfolio) => {
         setPortfolio(nextPortfolio);
@@ -222,9 +255,22 @@ export function useWallet() {
   const connect = async (type: WalletType): Promise<WalletConnectResult> => {
     setIsConnecting(true);
     try {
+      if (session?.address) {
+        return { address: session.address, portfolio: null };
+      }
       const walletName = WALLET_NAMES[type];
       if (!walletName) {
         throw new Error('Unsupported wallet type');
+      }
+      if (wallet?.adapter?.connected) {
+        const address =
+          publicKey?.toBase58?.() ||
+          wallet?.adapter?.publicKey?.toBase58?.() ||
+          wallet?.adapter?.publicKey?.toString?.() ||
+          null;
+        if (address) {
+          return { address, portfolio: null };
+        }
       }
       if (!wallet || wallet.adapter?.name !== walletName) {
         select(walletName as WalletName);
@@ -262,6 +308,7 @@ export function useWallet() {
     setSession(null);
     setPortfolio(null);
     setActiveAdapter(null);
+    cachedSessionRef.current = null;
   };
 
   const refreshPortfolio = async () => {

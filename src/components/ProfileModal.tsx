@@ -23,9 +23,29 @@ export function ProfileModal({ isOpen, onClose, onSave, walletAddress }: Profile
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        alert('Image too large. Please choose a file under 3MB.');
+        return;
+      }
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhoto(event.target?.result as string);
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxSize = 720;
+          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            setPhoto(reader.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          setPhoto(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => setPhoto(reader.result as string);
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -100,7 +120,7 @@ export function ProfileModal({ isOpen, onClose, onSave, walletAddress }: Profile
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="mt-1.5 w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200"
-                  placeholder="@yourusername"
+                  placeholder="@name"
                 />
               </div>
 
