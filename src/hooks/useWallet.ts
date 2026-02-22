@@ -93,11 +93,13 @@ export function useWallet() {
     };
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       (window as any).requestIdleCallback(() => run(), { timeout: 1200 });
-    } else if (typeof window !== 'undefined') {
-      window.setTimeout(run, 200);
-    } else {
-      run();
+      return;
     }
+    if (typeof window === 'undefined') {
+      run();
+      return;
+    }
+    setTimeout(run, 200);
   };
 
   const fetchPortfolio = async (address: string): Promise<Portfolio> => {
