@@ -279,6 +279,178 @@
             opacity: 0.8;
         }
 
+        .section-shell {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .design-steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            position: relative;
+            flex-wrap: wrap;
+        }
+        .design-steps::before {
+            content: '';
+            position: absolute;
+            top: 44px;
+            left: 48px;
+            right: 48px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(17, 24, 39, 0.15), transparent);
+            z-index: 0;
+        }
+        .design-step-item {
+            flex: 1 1 160px;
+            max-width: 220px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .design-step-icon {
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 20px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 28px rgba(236, 72, 153, 0.18);
+            font-size: 22px;
+            font-weight: 700;
+            color: #DB2777;
+            border: 4px solid rgba(236, 72, 153, 0.15);
+        }
+        .design-step-title {
+            font-weight: 600;
+            font-size: 17px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        .design-step-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .design-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .design-table th {
+            text-align: left;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .design-table td {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 20px 24px;
+            border-top: 1px solid rgba(17, 24, 39, 0.08);
+            border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+            color: var(--text-dark);
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+        .design-table tr td:first-child {
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+            border-left: 1px solid rgba(17, 24, 39, 0.08);
+            font-weight: 600;
+        }
+        .design-table tr td:last-child {
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+            border-right: 1px solid rgba(17, 24, 39, 0.08);
+        }
+        .design-table tr:hover td {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .design-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            background: #DB2777;
+        }
+        .design-badge.med { background: #F472B6; }
+        .design-badge.low { background: #FBCFE8; color: #7A1F52; }
+
+        .design-security-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+        .design-security-main {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 30px rgba(236, 72, 153, 0.12);
+        }
+        .design-security-main h2 {
+            font-size: 28px;
+            margin-bottom: 18px;
+            color: var(--text-dark);
+        }
+        .design-security-main p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 26px;
+            font-size: 15px;
+        }
+        .design-security-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .design-security-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            border-radius: var(--rad-sm);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .design-security-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(4px);
+        }
+        .design-check {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #DB2777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .design-security-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+        .design-security-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
         
         .scoring-section {
             display: grid;
@@ -499,6 +671,7 @@
             .nav-pill { display: none; }
             .scoring-section { grid-template-columns: 1fr; }
             .security-container { grid-template-columns: 1fr; }
+            .design-security-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
@@ -526,6 +699,9 @@
             .legal-back { align-self: center; }
             .legal-card { padding: 28px; margin: 0 auto; width: 100%; max-width: 100%; }
             .legal-label, .legal-title, .legal-date { text-align: center; }
+            .design-steps::before { display: none; }
+            .design-step-item { max-width: none; }
+            .design-table th, .design-table td { padding: 16px 18px; }
         }
 
         /* Legal pages */
@@ -688,94 +864,122 @@
     </div>
 
     <section id="how" vid="39">
-        <div class="section-header" vid="40">How It Works</div>
-        <div class="steps-grid" vid="41">
-            <div class="step-card" vid="42">
-                <div class="step-num" vid="43">01</div>
-                <div class="step-title" vid="44">Connect Wallet</div>
-                <div class="step-desc" vid="45">Link your Phantom or Solflare wallet. No email or phone number required.</div>
-            </div>
-            
-            <div class="step-card" vid="50">
-                <div class="step-num" vid="51">02</div>
-                <div class="step-title" vid="52">Create Profile</div>
-                <div class="step-desc" vid="53">Select which assets you want to display on your dating card.</div>
-            </div>
-            <div class="step-card" vid="54">
-                <div class="step-num" vid="55">03</div>
-                <div class="step-title" vid="56">Algorithmic Match</div>
-                <div class="step-desc" vid="57">Get matched based on holding overlap, transaction velocity, and DAO memberships.</div>
-            </div>
-            <div class="step-card" vid="58">
-                <div class="step-num" vid="59">04</div>
-                <div class="step-title" vid="60">On-Chain Chat</div>
-                <div class="step-desc" vid="61">Start a conversation. Verify identity without revealing PII.</div>
+        <div class="section-shell">
+            <div class="section-header" vid="40">Verified on Chain</div>
+            <div class="design-steps">
+                <div class="design-step-item">
+                    <div class="design-step-icon">1</div>
+                    <div class="design-step-title">Connect</div>
+                    <div class="design-step-desc">Link your Phantom or Solflare wallet securely.</div>
+                </div>
+                <div class="design-step-item">
+                    <div class="design-step-icon">2</div>
+                    <div class="design-step-title">Scan</div>
+                    <div class="design-step-desc">Analyze holding patterns and NFT collections.</div>
+                </div>
+                <div class="design-step-item">
+                    <div class="design-step-icon">3</div>
+                    <div class="design-step-title">Profile</div>
+                    <div class="design-step-desc">Generate a profile based on on-chain behavior.</div>
+                </div>
+                <div class="design-step-item">
+                    <div class="design-step-icon">4</div>
+                    <div class="design-step-title">Match</div>
+                    <div class="design-step-desc">Find compatibility from shared signals.</div>
+                </div>
+                <div class="design-step-item">
+                    <div class="design-step-icon">5</div>
+                    <div class="design-step-title">Chat</div>
+                    <div class="design-step-desc">Token-gated messaging ensures authenticity.</div>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="scoring" class="scoring-section" vid="62">
-        <div class="scoring-info" vid="63">
-            <h3 vid="64">The Proof of Compatibility</h3>
-            <p vid="65">We don't ask you what you like. We look at what you hold. Your on-chain behavior reveals more about your lifestyle than a questionnaire.</p>
-            
-            <div class="section-header" style="font-size: 1.5rem; margin-bottom: 30px;" vid="66">Supported Wallets</div>
-            <div class="wallet-pill-container" vid="67">
-                <div class="wallet-pill" vid="68">
-                    <div class="wallet-dot" style="background: #AB9FF2;" vid="69"></div> Phantom
-                </div>
-                <div class="wallet-pill" vid="70">
-                    <div class="wallet-dot" style="background: #FF9C32;" vid="71"></div> Solflare
-                </div>
-            </div>
-        </div>
-
-        <div class="data-table" vid="72">
-            <div class="table-row" vid="73">
-                <span class="row-label" vid="74">NFT Collection Overlap</span>
-                <span class="row-value" vid="75">+45 Pts</span>
-            </div>
-            <div class="table-row" vid="76">
-                <span class="row-label" vid="77">DAO Governance Similarity</span>
-                <span class="row-value" vid="78">+30 Pts</span>
-            </div>
-            <div class="table-row" vid="79">
-                <span class="row-label" vid="80">Transaction Volume Delta</span>
-                <span class="row-value" vid="81">+15 Pts</span>
-            </div>
-            <div class="table-row" vid="82">
-                <span class="row-label" vid="83">Wallet Age</span>
-                <span class="row-value" vid="84">Multiplier x1.2</span>
-            </div>
-            <div class="table-row" vid="85">
-                <span class="row-label" vid="86">DeFi Protocol Usage</span>
-                <span class="row-value" vid="87">+10 Pts</span>
-            </div>
+    <section id="scoring" vid="62">
+        <div class="section-shell">
+            <div class="section-header" vid="63">On-Chain Compatibility Factors</div>
+            <table class="design-table">
+                <thead>
+                    <tr>
+                        <th>Factor</th>
+                        <th>Description</th>
+                        <th>Weight</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NFT Collections</td>
+                        <td>Shared ownership of blue-chip collections</td>
+                        <td><span class="design-badge">High</span></td>
+                        <td>Common interests and community</td>
+                    </tr>
+                    <tr>
+                        <td>Transaction Volume</td>
+                        <td>Frequency and timing of on-chain activity</td>
+                        <td><span class="design-badge med">Med</span></td>
+                        <td>Lifestyle compatibility</td>
+                    </tr>
+                    <tr>
+                        <td>DeFi Protocols</td>
+                        <td>Usage of similar yield farms or staking</td>
+                        <td><span class="design-badge med">Med</span></td>
+                        <td>Financial risk alignment</td>
+                    </tr>
+                    <tr>
+                        <td>Governance Votes</td>
+                        <td>Participation in similar DAOs</td>
+                        <td><span class="design-badge low">Low</span></td>
+                        <td>Values alignment</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 
     <section id="security" vid="88">
-        <div class="security-container" vid="89">
-            <div class="security-text" vid="90">
-                <h3 vid="91">Zero-Knowledge Architecture</h3>
-                <p vid="92">Your keys never leave your device. We use read-only permissions to generate your compatibility score locally.</p>
-            </div>
-            <div class="security-grid" vid="93">
-                <div class="sec-item" vid="94">
-                    <div class="sec-label" vid="95">Encryption</div>
-                    <div class="sec-data" vid="96">AES-256</div>
+        <div class="section-shell">
+            <div class="design-security-grid">
+                <div class="design-security-main">
+                    <h2>Zero-Knowledge Architecture</h2>
+                    <p>
+                        SUGAR never accesses your private keys. Read-only permissions
+                        are used to analyze on-chain data and generate compatibility scores
+                        locally on your device.
+                    </p>
                 </div>
-                <div class="sec-item" vid="97">
-                    <div class="sec-label" vid="98">Key Storage</div>
-                    <div class="sec-data" vid="99">Local Only</div>
-                </div>
-                <div class="sec-item" vid="100">
-                    <div class="sec-label" vid="101">Audit Status</div>
-                    <div class="sec-data" vid="102">Verified</div>
-                </div>
-                <div class="sec-item" vid="103">
-                    <div class="sec-label" vid="104">Protocol</div>
-                    <div class="sec-data" vid="105">Solana</div>
+                <div class="design-security-list">
+                    <div class="design-security-item">
+                        <div class="design-check">✓</div>
+                        <div>
+                            <div class="design-security-title">Non-Custodial</div>
+                            <div class="design-security-desc">Funds always stay in your wallet.</div>
+                        </div>
+                    </div>
+                    <div class="design-security-item">
+                        <div class="design-check">✓</div>
+                        <div>
+                            <div class="design-security-title">Open Source</div>
+                            <div class="design-security-desc">Contracts and adapters are verifiable.</div>
+                        </div>
+                    </div>
+                    <div class="design-security-item">
+                        <div class="design-check">✓</div>
+                        <div>
+                            <div class="design-security-title">Supported Wallets</div>
+                            <div class="design-security-desc" style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
+                                <div class="wallet-pill">
+                                    <div class="wallet-dot" style="background: #AB9FF2;"></div>
+                                    Phantom
+                                </div>
+                                <div class="wallet-pill">
+                                    <div class="wallet-dot" style="background: #FF9C32;"></div>
+                                    Solflare
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
