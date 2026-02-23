@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, Wallet, ChevronDown, LogOut, User, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Session, User as UserType } from '@/types';
-import logoUrl from '@/assets/logo.jpeg';
 
 interface HeaderProps {
   session: Session | null;
@@ -70,82 +69,83 @@ export function Header({
   ];
 
   return (
-    <header className="relative z-50 flex items-center justify-between px-6 py-4 lg:px-8">
-      {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-2xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
-          <img
-            src={logoUrl}
-            alt="SUGAR"
-            className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-        <div>
-          <div className="font-serif text-2xl font-bold tracking-tight text-slate-900">
-            SUGAR
+    <header className="relative z-50">
+      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 py-4 lg:px-8">
+        {/* Logo */}
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="SUGAR"
+              className="w-full h-full object-cover"
+              loading="eager"
+              decoding="async"
+            />
           </div>
-          <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
-            Find Your Web3 Match
+          <div>
+            <div className="font-serif text-2xl font-bold tracking-tight text-slate-900">
+              SUGAR
+            </div>
+            <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
+              Find Your Web3 Match
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="hidden md:flex items-center gap-1 bg-white/70 backdrop-blur-md px-2 py-1.5 rounded-full shadow-sm border border-white/60">
-        {navItems.map((item) => (
-          <button
-            key={item.key}
-            onClick={() => onViewChange(item.key as any)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-              currentView === item.key
-                ? 'bg-white shadow-sm text-slate-900'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
-            }`}
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-1 bg-white/70 backdrop-blur-md px-2 py-1.5 rounded-full shadow-sm border border-white/60">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => onViewChange(item.key as any)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                currentView === item.key
+                  ? 'bg-white shadow-sm text-slate-900'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 md:gap-3">
+          <a
+            href="/"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-white transition-colors"
           >
-            {item.label}
+            <span className="text-base leading-none">←</span>
+            Back to Main
+          </a>
+          {/* Mobile Menu */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="md:hidden w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5" />
           </button>
-        ))}
-      </nav>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2 md:gap-3">
-        <a
-          href="/"
-          className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-white transition-colors"
-        >
-          <span className="text-base leading-none">←</span>
-          Back to Main
-        </a>
-        {/* Mobile Menu */}
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="md:hidden w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-
-        {/* Notifications */}
-        <button
-          onClick={onNotifications}
-          className="relative w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
-        >
-          <Bell className="w-5 h-5" />
-          {notificationsCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
-              {notificationsCount > 99 ? '99+' : notificationsCount}
-            </span>
-          )}
-        </button>
-
-        {/* Wallet */}
-        <div className="relative" ref={menuRef}>
+          {/* Notifications */}
           <button
-            onClick={() => session ? setIsWalletMenuOpen(!isWalletMenuOpen) : setIsWalletMenuOpen(true)}
-            className="flex items-center gap-2 pl-2 pr-2 md:pr-3 py-1.5 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
+            onClick={onNotifications}
+            className="relative w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
           >
+            <Bell className="w-5 h-5" />
+            {notificationsCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {notificationsCount > 99 ? '99+' : notificationsCount}
+              </span>
+            )}
+          </button>
+
+          {/* Wallet */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => session ? setIsWalletMenuOpen(!isWalletMenuOpen) : setIsWalletMenuOpen(true)}
+              className="flex items-center gap-2 pl-2 pr-2 md:pr-3 py-1.5 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
+            >
             <div
               className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-bold overflow-hidden"
               style={profile?.photo ? { backgroundImage: `url(${profile.photo})`, backgroundSize: 'cover' } : {}}
@@ -165,7 +165,7 @@ export function Header({
               )}
             </span>
             <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
-          </button>
+            </button>
 
           <AnimatePresence>
             {isWalletMenuOpen && (
@@ -226,8 +226,8 @@ export function Header({
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
-      </div>
 
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -281,6 +281,7 @@ export function Header({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </header>
   );
 }
