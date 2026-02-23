@@ -75,7 +75,7 @@ export function Header({
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
             <img
-              src="/logo.png"
+              src="/logo.jpeg"
               alt="SUGAR"
               className="w-full h-full object-cover"
               loading="eager"
