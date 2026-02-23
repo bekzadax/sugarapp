@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, type Transition } from 'framer-motion';
 import { X, Heart, Instagram, BadgeCheck, User } from 'lucide-react';
 import type { MatchCandidate } from '@/types';
 
@@ -111,7 +111,7 @@ export function MatchCard({
   const translateX = isDragging ? touchDelta.x : 0;
   const rotate = isDragging ? touchDelta.x / 20 : 0;
 
-  const swipeTransition = swipeDirection
+  const swipeTransition: Transition = swipeDirection
     ? { type: 'tween', duration: 0.18, ease: 'easeOut' }
     : { type: 'tween', duration: 0.2, ease: 'easeOut' };
 
