@@ -1,12 +1,960 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sugar - Web3 Dating</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<html lang="en" vid="0"><head vid="1">
+    <meta charset="UTF-8" vid="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" vid="3">
+    <title vid="4">SUGAR | Web3 Dating</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" vid="5">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" vid="6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&amp;display=swap" rel="stylesheet" vid="7">
+    <style vid="8">
+        :root {
+            --bg-gradient-start: #CBBCE3;
+            --bg-gradient-end: #EBE5F7;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-dark: #1a1a1a;
+            --accent-pill: #FFFFFF;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --card-radius: 24px;
+            --pill-radius: 999px;
+            --dark-card: #0F0F0F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        
+        .ambient-shape {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out;
+        }
+        .shape-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #A78BFA 0%, transparent 70%);
+            top: -20%;
+            left: -10%;
+        }
+        .shape-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #F472B6 0%, transparent 70%);
+            bottom: 10%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+        .shape-3 {
+            width: 300px;
+            height: 300px;
+            background: #fff;
+            top: 40%;
+            left: 50%;
+            opacity: 0.2;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        
+        nav {
+            position: fixed;
+            top: 32px;
+            left: 0;
+            width: 100%;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none; 
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: auto;
+            opacity: 0.95;
+        }
+        .nav-logo img {
+            height: 28px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-pill {
+            background: var(--accent-pill);
+            padding: 14px 32px;
+            border-radius: var(--pill-radius);
+            display: flex;
+            gap: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            pointer-events: auto;
+        }
+
+        .nav-pill a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+        .nav-pill a:hover {
+            opacity: 0.6;
+        }
+
+        .cta-pill {
+            background: var(--accent-pill);
+            color: var(--text-dark);
+            padding: 14px 28px;
+            border-radius: var(--pill-radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 6vw;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 12vw, 9rem);
+            line-height: 0.85;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            margin-bottom: 2rem;
+            max-width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 span {
+            display: block;
+        }
+
+        .hero-tagline {
+            font-size: 1.5rem;
+            font-weight: 300;
+            max-width: 500px;
+            line-height: 1.4;
+            margin-bottom: 3rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        
+        .scroll-indicator {
+            width: 64px;
+            height: 64px;
+            background: var(--accent-pill);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .scroll-indicator:hover {
+            transform: scale(1.1);
+        }
+
+        
+        .stats-container {
+            position: absolute;
+            bottom: 40px;
+            left: 6vw;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: var(--pill-radius);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stat-val {
+            font-weight: 700;
+        }
+
+        
+        section {
+            padding: 120px 6vw;
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-header {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 60px;
+            text-transform: uppercase;
+        }
+
+        
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+
+        .step-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: var(--card-radius);
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.25);
+        }
+
+        .step-num {
+            font-size: 4rem;
+            font-weight: 800;
+            opacity: 0.3;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .step-desc {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.8;
+        }
+
+        
+        .scoring-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .scoring-info h3 {
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+        .scoring-info p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .data-table {
+            background: var(--glass-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .row-label {
+            font-weight: 500;
+        }
+        .row-value {
+            font-weight: 700;
+            font-family: monospace;
+            opacity: 0.9;
+        }
+
+        
+        .wallet-pill-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .wallet-pill {
+            background: #fff;
+            color: #000;
+            padding: 16px 32px;
+            border-radius: var(--pill-radius);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .wallet-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #A78BFA;
+        }
+
+        
+        .security-container {
+            background: var(--dark-card);
+            color: #fff;
+            border-radius: var(--card-radius);
+            padding: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        
+        .security-container::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .security-text h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .security-text p {
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .sec-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 16px;
+        }
+        .sec-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.5;
+            margin-bottom: 8px;
+        }
+        .sec-data {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 32px 0;
+            cursor: pointer;
+        }
+        .faq-question {
+            font-size: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: relative;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-top: 0;
+            max-width: 800px;
+            opacity: 0.8;
+        }
+
+        .faq-item:hover .faq-answer {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 20px;
+        }
+
+        
+        footer {
+            padding: 80px 6vw;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .footer-brand {
+            font-size: 5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 0.8;
+            opacity: 0.2;
+        }
+        .footer-links {
+            display: flex;
+            gap: 40px;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.6;
+        }
+
+        
+        @media (max-width: 1024px) {
+            h1 { font-size: 12vw; }
+            nav { padding: 0 20px; }
+            .nav-pill { display: none; }
+            .scoring-section { grid-template-columns: 1fr; }
+            .security-container { grid-template-columns: 1fr; }
+        }
+
+        /* Legal pages */
+        .legal-page {
+            display: none;
+            min-height: 100vh;
+            padding: 140px 6vw 80px;
+            position: relative;
+            z-index: 2;
+        }
+        .legal-page.active {
+            display: block;
+        }
+        #page-main.hidden {
+            display: none;
+        }
+        .legal-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 60px;
+            transition: background 0.2s;
+        }
+        .legal-back:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .legal-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            opacity: 0.6;
+            margin-bottom: 12px;
+        }
+        .legal-title {
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 0.9;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .legal-date {
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-bottom: 60px;
+        }
+        .legal-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            backdrop-filter: blur(20px);
+            padding: 48px;
+            max-width: 860px;
+        }
+        .legal-section {
+            margin-bottom: 40px;
+        }
+        .legal-section:last-child {
+            margin-bottom: 0;
+        }
+        .legal-section h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 14px;
+            opacity: 0.9;
+        }
+        .legal-section p,
+        .legal-section li {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            opacity: 0.8;
+        }
+        .legal-section ul {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+        .legal-section li {
+            margin-bottom: 8px;
+        }
+        .legal-section p + p {
+            margin-top: 12px;
+        }
+        .legal-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            margin: 36px 0;
+        }
+        .legal-highlight {
+            font-weight: 600;
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body vid="9">
+
+
+    <div class="ambient-shape shape-1"></div>
+    <div class="ambient-shape shape-2"></div>
+    <div class="ambient-shape shape-3"></div>
+
+    <nav vid="13">
+        <div class="nav-logo" vid="14">
+            <img src="/logo.png" alt="SUGAR logo" loading="lazy" />
+        </div>
+        <div class="nav-pill" vid="15">
+            <a href="#about" vid="16">About</a>
+            <a href="#how" vid="17">How It Works</a>
+            <a href="#wallets" vid="18">Wallets</a>
+            <a href="#security" vid="19">Security</a>
+            <a href="#faq" vid="20">FAQ</a>
+        </div>
+        <a href="/app.html" class="cta-pill" vid="21">
+            Open App
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" vid="22">
+                <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="23"></path>
+            </svg>
+        </a>
+    </nav>
+
+    <div id="page-main">
+    <div class="hero" vid="24">
+        <h1 vid="25">
+            <span vid="26">Find Your</span>
+            <span style="opacity: 0.5;" vid="27">Web3 Match</span>
+        </h1>
+        <div class="hero-tagline" vid="28">
+            The first wallet-native dating app. Connect your wallet, and find love on the blockchain.
+        </div>
+        
+        <div class="scroll-indicator" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})" vid="29">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" vid="30">
+                <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke-linecap="round" stroke-linejoin="round" vid="31"></path>
+            </svg>
+        </div>
+
+        <div class="stats-container" vid="32">
+            <div class="stat-pill" vid="33">
+                <span class="stat-val" vid="34">99%</span> Match Score
+            </div>
+            <div class="stat-pill" vid="35">
+                <span class="stat-val" vid="36">2</span> Active Wallets
+            </div>
+            <div class="stat-pill" vid="37">
+                <span class="stat-val" vid="38">0</span> Private Keys Stored
+            </div>
+        </div>
+    </div>
+
+    <section id="how" vid="39">
+        <div class="section-header" vid="40">How It Works</div>
+        <div class="steps-grid" vid="41">
+            <div class="step-card" vid="42">
+                <div class="step-num" vid="43">01</div>
+                <div class="step-title" vid="44">Connect Wallet</div>
+                <div class="step-desc" vid="45">Link your Phantom or Solflare wallet. No email or phone number required.</div>
+            </div>
+            
+            <div class="step-card" vid="50">
+                <div class="step-num" vid="51">02</div>
+                <div class="step-title" vid="52">Create Profile</div>
+                <div class="step-desc" vid="53">Select which assets you want to display on your dating card.</div>
+            </div>
+            <div class="step-card" vid="54">
+                <div class="step-num" vid="55">03</div>
+                <div class="step-title" vid="56">Algorithmic Match</div>
+                <div class="step-desc" vid="57">Get matched based on holding overlap, transaction velocity, and DAO memberships.</div>
+            </div>
+            <div class="step-card" vid="58">
+                <div class="step-num" vid="59">04</div>
+                <div class="step-title" vid="60">On-Chain Chat</div>
+                <div class="step-desc" vid="61">Start a conversation. Verify identity without revealing PII.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="scoring" class="scoring-section" vid="62">
+        <div class="scoring-info" vid="63">
+            <h3 vid="64">The Proof of Compatibility</h3>
+            <p vid="65">We don't ask you what you like. We look at what you hold. Your on-chain behavior reveals more about your lifestyle than a questionnaire.</p>
+            
+            <div class="section-header" style="font-size: 1.5rem; margin-bottom: 30px;" vid="66">Supported Wallets</div>
+            <div class="wallet-pill-container" vid="67">
+                <div class="wallet-pill" vid="68">
+                    <div class="wallet-dot" style="background: #AB9FF2;" vid="69"></div> Phantom
+                </div>
+                <div class="wallet-pill" vid="70">
+                    <div class="wallet-dot" style="background: #FF9C32;" vid="71"></div> Solflare
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table" vid="72">
+            <div class="table-row" vid="73">
+                <span class="row-label" vid="74">NFT Collection Overlap</span>
+                <span class="row-value" vid="75">+45 Pts</span>
+            </div>
+            <div class="table-row" vid="76">
+                <span class="row-label" vid="77">DAO Governance Similarity</span>
+                <span class="row-value" vid="78">+30 Pts</span>
+            </div>
+            <div class="table-row" vid="79">
+                <span class="row-label" vid="80">Transaction Volume Delta</span>
+                <span class="row-value" vid="81">+15 Pts</span>
+            </div>
+            <div class="table-row" vid="82">
+                <span class="row-label" vid="83">Wallet Age</span>
+                <span class="row-value" vid="84">Multiplier x1.2</span>
+            </div>
+            <div class="table-row" vid="85">
+                <span class="row-label" vid="86">DeFi Protocol Usage</span>
+                <span class="row-value" vid="87">+10 Pts</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="security" vid="88">
+        <div class="security-container" vid="89">
+            <div class="security-text" vid="90">
+                <h3 vid="91">Zero-Knowledge Architecture</h3>
+                <p vid="92">Your keys never leave your device. We use read-only permissions to generate your compatibility score locally.</p>
+            </div>
+            <div class="security-grid" vid="93">
+                <div class="sec-item" vid="94">
+                    <div class="sec-label" vid="95">Encryption</div>
+                    <div class="sec-data" vid="96">AES-256</div>
+                </div>
+                <div class="sec-item" vid="97">
+                    <div class="sec-label" vid="98">Key Storage</div>
+                    <div class="sec-data" vid="99">Local Only</div>
+                </div>
+                <div class="sec-item" vid="100">
+                    <div class="sec-label" vid="101">Audit Status</div>
+                    <div class="sec-data" vid="102">Verified</div>
+                </div>
+                <div class="sec-item" vid="103">
+                    <div class="sec-label" vid="104">Protocol</div>
+                    <div class="sec-data" vid="105">Solana</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" vid="106">
+        <div class="section-header" vid="107">FAQ</div>
+        
+        <div class="faq-item" vid="108">
+            <div class="faq-question" vid="109">
+                Is my wallet data public?
+                <div class="faq-icon" vid="110"></div>
+            </div>
+            <div class="faq-answer" vid="111">
+                Your public key is public on the blockchain, but we only display the assets you choose to showcase. We never link your wallet to your real-world identity.
+            </div>
+        </div>
+
+        <div class="faq-item" vid="112">
+            <div class="faq-question" vid="113">
+                Do I need to pay gas fees to swipe?
+                <div class="faq-icon" vid="114"></div>
+            </div>
+            <div class="faq-answer" vid="115">
+                Matching and swiping are off-chain actions signed by your wallet but do not incur gas fees. Only specific interactions like sending gifts require a transaction.
+            </div>
+        </div>
+
+        <div class="faq-item" vid="116">
+            <div class="faq-question" vid="117">
+                Can I use a cold wallet?
+                <div class="faq-icon" vid="118"></div>
+            </div>
+            <div class="faq-answer" vid="119">
+                Yes, we support Ledger connection through Phantom or Solflare for maximum security.
+            </div>
+        </div>
+    </section>
+
+    <footer vid="120">
+        <div class="footer-brand" vid="121">SUGAR</div>
+        <div class="footer-links" vid="122">
+            <a href="#" onclick="showLegal('privacy'); return false;">Privacy Policy</a>
+            <a href="#" onclick="showLegal('terms'); return false;">Terms of Service</a>
+            <a href="https://x.com/Sugarmatched" target="_blank" rel="noopener">X</a>
+        </div>
+    </footer>
+    </div><!-- /#page-main -->
+
+    <!-- Privacy Policy Page -->
+    <div id="page-privacy" class="legal-page">
+        <button class="legal-back" onclick="hideLegal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+        </button>
+        <div class="legal-label">SUGAR</div>
+        <div class="legal-title">Privacy<br>Policy</div>
+        <div class="legal-date">Effective date: February 23, 2026</div>
+        <div class="legal-card">
+            <div class="legal-section">
+                <h2>1. Introduction</h2>
+                <p>Welcome to SUGAR ("we," "our," or "us"). SUGAR is a Web3 social matching platform that connects crypto users based on their on-chain portfolio activity. This Privacy Policy describes how we collect, use, and protect information when you use our application at sugar-app.xyz.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>2. Information We Collect</h2>
+                <ul>
+                    <li><span class="legal-highlight">Wallet Address:</span> When you connect a Solana wallet, we read your public wallet address. We never request or store your private keys or seed phrases.</li>
+                    <li><span class="legal-highlight">On-chain Portfolio Data:</span> We fetch publicly available token holdings and portfolio balances from the Solana blockchain to power matching and the KOL Leaderboard.</li>
+                    <li><span class="legal-highlight">Profile Information:</span> Display name, profile photo (optional), gender preference, and bio that you voluntarily provide.</li>
+                    <li><span class="legal-highlight">Activity Data:</span> Hearts sent/received, posts, comments, votes, and messages you create within the app.</li>
+                    <li><span class="legal-highlight">Device &amp; Usage Data:</span> Browser type, operating system, and interaction logs for analytics and debugging.</li>
+                </ul>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>3. How We Use Your Information</h2>
+                <ul>
+                    <li>To match you with compatible crypto users based on portfolio overlap.</li>
+                    <li>To display your profile and activity to other users on the platform.</li>
+                    <li>To deliver in-app notifications and private messages.</li>
+                    <li>To maintain and improve the SUGAR platform.</li>
+                    <li>To detect and prevent fraud or abuse.</li>
+                </ul>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>4. Information Sharing</h2>
+                <p>We do not sell your personal information. We may share data:</p>
+                <ul>
+                    <li>With other users, as intended (e.g., your public profile and posts).</li>
+                    <li>With service providers (e.g., Supabase for database hosting) under confidentiality agreements.</li>
+                    <li>If required by law or to protect the rights and safety of SUGAR or its users.</li>
+                </ul>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>5. Data Storage &amp; Security</h2>
+                <p>Your data is stored in Supabase and in your browser's local storage. We implement reasonable security measures, but no system is 100% secure. Blockchain data (wallet addresses and transactions) is inherently public.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>6. Your Rights</h2>
+                <ul>
+                    <li>Disconnect your wallet at any time to stop new data collection.</li>
+                    <li>Request deletion of your profile and associated data by contacting us.</li>
+                    <li>Update your profile information within the app at any time.</li>
+                </ul>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>7. Cookies &amp; Local Storage</h2>
+                <p>SUGAR uses browser local storage to persist your session, profile, and activity across visits. We do not use third-party advertising cookies.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>8. Children's Privacy</h2>
+                <p>SUGAR is intended for users 18 years of age or older. We do not knowingly collect data from minors. If you believe a minor has provided us data, please contact us immediately.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>9. Changes to This Policy</h2>
+                <p>We may update this policy periodically. We will post the updated version with a revised effective date. Continued use of SUGAR after changes constitutes acceptance.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>10. Contact</h2>
+                <p>For privacy questions or data requests, reach us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Page -->
+    <div id="page-terms" class="legal-page">
+        <button class="legal-back" onclick="hideLegal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+        </button>
+        <div class="legal-label">SUGAR</div>
+        <div class="legal-title">Terms of<br>Service</div>
+        <div class="legal-date">Effective date: February 23, 2026</div>
+        <div class="legal-card">
+            <div class="legal-section">
+                <h2>1. Acceptance of Terms</h2>
+                <p>By accessing or using SUGAR ("the App"), you agree to be bound by these Terms of Service. If you do not agree, do not use the App. These terms apply to all visitors, users, and others who access SUGAR.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>2. Eligibility</h2>
+                <p>You must be at least 18 years old to use SUGAR. By using the App, you represent that you meet this age requirement and that your use complies with any applicable laws in your jurisdiction.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>3. Your Account</h2>
+                <p>SUGAR uses Solana wallet authentication. You are responsible for the security of your wallet and any actions taken with it. We are not liable for unauthorized access due to wallet compromise.</p>
+                <p>You agree to provide accurate profile information and keep it up to date. You may not impersonate any person or entity.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>4. Acceptable Use</h2>
+                <p>You agree not to:</p>
+                <ul>
+                    <li>Post content that is unlawful, harmful, abusive, harassing, or defamatory.</li>
+                    <li>Spam other users or send unsolicited commercial messages.</li>
+                    <li>Attempt to manipulate matching scores, portfolio data, or leaderboards.</li>
+                    <li>Reverse-engineer, scrape, or exploit any part of the App.</li>
+                    <li>Use SUGAR for fraudulent, deceptive, or illegal activities.</li>
+                    <li>Upload malicious code or interfere with the App's infrastructure.</li>
+                </ul>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>5. User Content</h2>
+                <p>You retain ownership of content you post. By posting, you grant SUGAR a non-exclusive, worldwide, royalty-free license to display and distribute that content within the App.</p>
+                <p>You are solely responsible for the content you post. SUGAR reserves the right to remove content that violates these terms without notice.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>6. No Financial Advice</h2>
+                <p>SUGAR displays on-chain portfolio data for social matching purposes only. Nothing in the App constitutes financial, investment, or trading advice. Always do your own research before making any financial decisions.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>7. Intellectual Property</h2>
+                <p>All SUGAR branding, design, code, and content (excluding user-generated content) are owned by SUGAR and protected by applicable intellectual property laws. You may not copy, reproduce, or distribute them without written permission.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>8. Disclaimers</h2>
+                <p>SUGAR is provided "as is" without warranties of any kind. We do not guarantee uninterrupted service, accuracy of portfolio data, or suitability of matches. Blockchain data is inherently public and may be inaccurate or delayed.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>9. Limitation of Liability</h2>
+                <p>To the fullest extent permitted by law, SUGAR and its team shall not be liable for any indirect, incidental, or consequential damages arising from your use of the App, including any loss of funds, data, or opportunity.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>10. Termination</h2>
+                <p>We may suspend or terminate your access to SUGAR at any time, for any reason, including violation of these Terms. You may stop using the App at any time by disconnecting your wallet.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>11. Changes to Terms</h2>
+                <p>We reserve the right to modify these Terms at any time. Changes will be posted with an updated effective date. Continued use of the App after changes constitutes acceptance of the new Terms.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>12. Governing Law</h2>
+                <p>These Terms are governed by applicable law. Any disputes shall be resolved through binding arbitration rather than in court, except where prohibited by law.</p>
+            </div>
+            <hr class="legal-divider">
+            <div class="legal-section">
+                <h2>13. Contact</h2>
+                <p>For questions about these Terms, contact us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLegal(page) {
+            document.getElementById('page-main').classList.add('hidden');
+            document.getElementById('page-privacy').classList.remove('active');
+            document.getElementById('page-terms').classList.remove('active');
+            document.getElementById('page-' + page).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function hideLegal() {
+            document.getElementById('page-privacy').classList.remove('active');
+            document.getElementById('page-terms').classList.remove('active');
+            document.getElementById('page-main').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+</body></html>

@@ -13,8 +13,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        index: path.resolve(__dirname, 'sugarapp.html'),
-        app: path.resolve(__dirname, 'index.html'),
+        index: path.resolve(__dirname, 'index.html'),
+        app: path.resolve(__dirname, 'app.html'),
       },
     },
   },
