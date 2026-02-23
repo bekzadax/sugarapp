@@ -28,12 +28,15 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
             background-attachment: fixed;
             color: var(--text-primary);
-            overflow-x: hidden;
             min-height: 100vh;
             position: relative;
         }
@@ -475,6 +478,31 @@
             .security-container { grid-template-columns: 1fr; }
         }
 
+        @media (max-width: 768px) {
+            nav { top: 20px; padding: 0 16px; }
+            .hero { height: auto; padding: 120px 7vw 40px; }
+            .hero-tagline { font-size: 1.1rem; max-width: 100%; }
+            .stats-container {
+                position: static;
+                margin-top: 24px;
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+            .stat-pill { text-align: center; font-size: 0.85rem; }
+            footer {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 16px;
+                padding: 60px 8vw;
+            }
+            .footer-links { flex-wrap: wrap; justify-content: center; gap: 18px; }
+            .legal-page { padding: 120px 6vw 60px; }
+            .legal-card { padding: 28px; margin: 0 auto; width: 100%; max-width: 100%; }
+            .legal-label, .legal-title, .legal-date { text-align: center; }
+        }
+
         /* Legal pages */
         .legal-page {
             display: none;
@@ -911,7 +939,7 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>8. Disclaimers</h2>
-                <p>SUGAR is provided "as is" without warranties of any kind. We do not guarantee uninterrupted service, accuracy of portfolio data, or suitability of matches. Blockchain data is inherently public and may be inaccurate or delayed.</p>
+                <p>SUGAR is provided "as is" without warranties of any kind. SUGAR does not guarantee uninterrupted service, accuracy of portfolio data, or suitability of matches. Blockchain data is inherently public and may be inaccurate or delayed.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
@@ -921,12 +949,12 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>10. Termination</h2>
-                <p>We may suspend or terminate your access to SUGAR at any time, for any reason, including violation of these Terms. You may stop using the App at any time by disconnecting your wallet.</p>
+                <p>SUGAR may suspend or terminate access at any time, for any reason, including violation of these Terms. You may stop using the App at any time by disconnecting your wallet.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>11. Changes to Terms</h2>
-                <p>We reserve the right to modify these Terms at any time. Changes will be posted with an updated effective date. Continued use of the App after changes constitutes acceptance of the new Terms.</p>
+                <p>SUGAR reserves the right to modify these Terms at any time. Changes will be posted with an updated effective date. Continued use of the App after changes constitutes acceptance of the new Terms.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
