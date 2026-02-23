@@ -8,19 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&amp;display=swap" rel="stylesheet" vid="7">
     <style vid="8">
         :root {
-            --bg-gradient-start: #F3E7F9;
-            --bg-gradient-end: #E0D4FC;
-            --text-primary: #4A3B69;
-            --text-secondary: #7A6B99;
-            --text-dark: #3C2F57;
+            --bg-gradient-start: #CBBCE3;
+            --bg-gradient-end: #EBE5F7;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-dark: #1a1a1a;
             --accent-pill: #FFFFFF;
-            --accent: #8A63DE;
-            --accent-soft: #B08AE0;
-            --glass-bg: rgba(255, 255, 255, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.75);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
             --card-radius: 24px;
             --pill-radius: 999px;
-            --dark-card: rgba(255, 255, 255, 0.75);
+            --dark-card: #0F0F0F;
         }
 
         * {
@@ -55,14 +53,14 @@
         .shape-1 {
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, #C4B0F0 0%, transparent 70%);
+            background: radial-gradient(circle, #A78BFA 0%, transparent 70%);
             top: -20%;
             left: -10%;
         }
         .shape-2 {
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, #9A85DB 0%, transparent 70%);
+            background: radial-gradient(circle, #F472B6 0%, transparent 70%);
             bottom: 10%;
             right: -10%;
             animation-delay: -5s;
@@ -132,8 +130,8 @@
         }
 
         .cta-pill {
-            background: linear-gradient(135deg, var(--accent), #9A85DB);
-            color: #fff;
+            background: var(--accent-pill);
+            color: var(--text-dark);
             padding: 14px 28px;
             border-radius: var(--pill-radius);
             text-decoration: none;
@@ -178,7 +176,7 @@
             max-width: 500px;
             line-height: 1.4;
             margin-bottom: 3rem;
-            color: var(--text-secondary);
+            color: rgba(255,255,255,0.9);
         }
 
         
@@ -521,13 +519,13 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #B08AE0;
+            background: #A78BFA;
         }
 
         
         .security-container {
             background: var(--dark-card);
-            color: var(--text-primary);
+            color: #fff;
             border-radius: var(--card-radius);
             padding: 60px;
             display: grid;
@@ -545,7 +543,7 @@
             right: -20%;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(138, 99, 222, 0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -554,7 +552,7 @@
             margin-bottom: 20px;
         }
         .security-text p {
-            color: var(--text-secondary);
+            opacity: 0.7;
             line-height: 1.6;
         }
 
@@ -564,7 +562,7 @@
             gap: 20px;
         }
         .sec-item {
-            background: rgba(255,255,255,0.75);
+            background: rgba(255,255,255,0.1);
             padding: 20px;
             border-radius: 16px;
         }
@@ -572,7 +570,7 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: var(--text-secondary);
+            opacity: 0.5;
             margin-bottom: 8px;
         }
         .sec-data {
@@ -582,7 +580,7 @@
 
         
         .faq-item {
-            border-bottom: 1px solid rgba(74, 59, 105, 0.15);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
             padding: 32px 0;
             cursor: pointer;
         }
@@ -596,7 +594,7 @@
         .faq-icon {
             width: 24px;
             height: 24px;
-            border: 2px solid rgba(74, 59, 105, 0.5);
+            border: 2px solid white;
             border-radius: 50%;
             position: relative;
         }
@@ -620,7 +618,7 @@
         }
         .faq-item.active .faq-icon::before,
         .faq-item.active .faq-icon::after {
-            background: var(--text-dark);
+            background: white;
         }
         .faq-icon::before,
         .faq-icon::after {
@@ -630,7 +628,7 @@
             left: 50%;
             width: 12px;
             height: 2px;
-            background: var(--text-dark);
+            background: white;
             transform: translate(-50%, -50%);
             transition: transform 0.2s ease;
         }
