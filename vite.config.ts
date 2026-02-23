@@ -10,6 +10,14 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  build: {
+    rollupOptions: {
+      input: {
+        index: path.resolve(__dirname, 'sugarapp.html'),
+        app: path.resolve(__dirname, 'index.html'),
+      },
+    },
+  },
   resolve: {
     alias: {
       buffer: 'buffer/',
