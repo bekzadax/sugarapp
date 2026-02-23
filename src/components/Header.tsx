@@ -62,6 +62,7 @@ export function Header({
     { key: 'kol', label: 'LEADERBOARD' },
   ];
   const mobileItems = [
+    { key: 'main', label: 'Back to Main', action: () => (window.location.href = '/') },
     { key: 'feed', label: 'Feed' },
     { key: 'messages', label: 'Messages' },
     { key: 'kol', label: 'Leaderboard' },
@@ -110,6 +111,13 @@ export function Header({
 
       {/* Actions */}
       <div className="flex items-center gap-2 md:gap-3">
+        <a
+          href="/"
+          className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-white transition-colors"
+        >
+          <span className="text-base leading-none">←</span>
+          Back to Main
+        </a>
         {/* Mobile Menu */}
         <button
           onClick={() => setIsMobileMenuOpen(true)}
@@ -254,7 +262,9 @@ export function Header({
                     key={item.key}
                     onClick={() => {
                       item.action?.();
-                      onViewChange(item.key as any);
+                      if (item.key !== 'main') {
+                        onViewChange(item.key as any);
+                      }
                       setIsMobileMenuOpen(false);
                     }}
                     className={`w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold transition-colors ${

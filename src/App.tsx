@@ -11,7 +11,6 @@ import { Notifications } from '@/components/Notifications';
 import { useWallet, type WalletConnectResult } from '@/hooks/useWallet';
 import { useAppState } from '@/hooks/useAppState';
 import { Toaster, toast } from 'sonner';
-import headerImage from '@/assets/header.jpeg';
 
 function App() {
   const {
@@ -533,7 +532,7 @@ function App() {
   const activePortfolio = scanPortfolio || appPortfolio;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 overflow-hidden flex flex-col relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#CBBCE3] via-[#E6D9F6] to-[#F1EAFB] text-slate-800 overflow-hidden flex flex-col relative">
       {/* Background Effects */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-[-10%] w-[500px] h-[500px] bg-purple-200 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-blob" />
@@ -558,29 +557,8 @@ function App() {
         portfolioBalance={appPortfolio?.balance}
       />
 
-      <section className="relative z-10 w-full max-w-[1440px] mx-auto px-4 lg:px-8 pb-6">
-        <div className="relative h-32 md:h-44 rounded-[32px] overflow-hidden border border-white/50 shadow-lg shadow-pink-500/10 bg-slate-900">
-          <img
-            src={headerImage}
-            alt="SUGAR"
-            className="absolute inset-0 w-full h-full object-cover scale-105"
-            loading="eager"
-            decoding="async"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/40 to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_55%)]" />
-          <div className="relative h-full flex flex-col justify-center px-6">
-            <div className="text-[11px] uppercase tracking-[0.45em] text-white/70 font-semibold">SUGAR</div>
-            <div className="text-2xl md:text-3xl font-serif text-white font-semibold leading-tight">
-              Verified KOLs. Real matches.
-              <span className="block text-white/80">Real activity.</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Main Content */}
-      <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 overflow-visible md:overflow-hidden">
+      <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 pt-4 md:pt-2 overflow-visible md:overflow-hidden">
         {/* Left Column - Match Card (Feed/Matches views) */}
         {view === 'feed' && (
           <section className="col-span-12 lg:col-span-7 xl:col-span-8 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)] flex flex-col justify-center py-4 md:py-0">
