@@ -111,9 +111,13 @@ export function MatchCard({
   const translateX = isDragging ? touchDelta.x : 0;
   const rotate = isDragging ? touchDelta.x / 20 : 0;
 
+  const swipeTransition = swipeDirection
+    ? { type: 'tween', duration: 0.18, ease: 'easeOut' }
+    : { type: 'tween', duration: 0.2, ease: 'easeOut' };
+
   return (
     <motion.div
-      className="relative w-full h-full bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 group touch-pan-y"
+      className="relative w-full h-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 group touch-pan-y"
       style={
         !swipeDirection
           ? {
@@ -131,7 +135,7 @@ export function MatchCard({
             }
           : { opacity: 1 }
       }
-      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      transition={swipeTransition}
       initial={false}
       onAnimationComplete={() => {
         if (!swipeDirection || actionTriggered) return;
