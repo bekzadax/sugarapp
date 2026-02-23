@@ -146,7 +146,7 @@
 
         
         .hero {
-            height: 100vh;
+            height: 85vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -225,7 +225,7 @@
 
         
         section {
-            padding: 120px 6vw;
+            padding: 80px 6vw;
             position: relative;
             z-index: 2;
         }
@@ -677,6 +677,7 @@
         @media (max-width: 768px) {
             nav { top: 20px; padding: 0 16px; }
             .hero { height: auto; padding: 120px 7vw 40px; }
+            section { padding: 64px 7vw; }
             .hero-tagline { font-size: 1.1rem; max-width: 100%; }
             .stats-container {
                 position: static;
@@ -891,48 +892,6 @@
         </div>
     </section>
 
-    <section id="scoring" vid="62">
-        <div class="section-shell">
-            <div class="section-header" vid="63">On-Chain Compatibility Factors</div>
-            <table class="design-table">
-                <thead>
-                    <tr>
-                        <th>Factor</th>
-                        <th>Description</th>
-                        <th>Weight</th>
-                        <th>Impact</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>NFT Collections</td>
-                        <td>Shared ownership of blue-chip collections</td>
-                        <td><span class="design-badge">High</span></td>
-                        <td>Common interests and community</td>
-                    </tr>
-                    <tr>
-                        <td>Transaction Volume</td>
-                        <td>Frequency and timing of on-chain activity</td>
-                        <td><span class="design-badge med">Med</span></td>
-                        <td>Lifestyle compatibility</td>
-                    </tr>
-                    <tr>
-                        <td>DeFi Protocols</td>
-                        <td>Usage of similar yield farms or staking</td>
-                        <td><span class="design-badge med">Med</span></td>
-                        <td>Financial risk alignment</td>
-                    </tr>
-                    <tr>
-                        <td>Governance Votes</td>
-                        <td>Participation in similar DAOs</td>
-                        <td><span class="design-badge low">Low</span></td>
-                        <td>Values alignment</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
     <section id="security" vid="88">
         <div class="section-shell">
             <div class="design-security-grid">
@@ -985,31 +944,31 @@
         
         <div class="faq-item" vid="108">
             <div class="faq-question" vid="109">
-                Is my wallet data public?
+                Is there a token required?
                 <div class="faq-icon" vid="110"></div>
             </div>
             <div class="faq-answer" vid="111">
-                Your public key is public on the blockchain, but we only display the assets you choose to showcase. We never link your wallet to your real-world identity.
+                No, the basic matching functionality is free. Premium features like "Super Likes" or "Global Search" may require holding our governance token or specific NFTs in the future.
             </div>
         </div>
 
         <div class="faq-item" vid="112">
             <div class="faq-question" vid="113">
-                Do I need to pay gas fees to swipe?
+                What chains do you support?
                 <div class="faq-icon" vid="114"></div>
             </div>
             <div class="faq-answer" vid="115">
-                Matching and swiping are off-chain actions signed by your wallet but do not incur gas fees. Only specific interactions like sending gifts require a transaction.
+                Currently, SUGAR is native to Solana due to its low transaction fees and high speed, which is essential for a social experience. Ethereum L2 support is on our Q4 roadmap.
             </div>
         </div>
 
         <div class="faq-item" vid="116">
             <div class="faq-question" vid="117">
-                Can I use a cold wallet?
+                Can I stay anonymous?
                 <div class="faq-icon" vid="118"></div>
             </div>
             <div class="faq-answer" vid="119">
-                Yes, we support Ledger connection through Phantom or Solflare for maximum security.
+                Yes. You can choose to display your ENS/Bonfida name or remain completely pseudonymous. We verify assets, not identities.
             </div>
         </div>
     </section>
