@@ -488,8 +488,9 @@
                 flex-wrap: wrap;
                 justify-content: center;
                 text-align: center;
+                width: 100%;
             }
-            .stat-pill { text-align: center; font-size: 0.85rem; }
+            .stat-pill { text-align: center; font-size: 0.85rem; justify-content: center; }
             footer {
                 flex-direction: column;
                 align-items: center;
@@ -498,7 +499,8 @@
                 padding: 60px 8vw;
             }
             .footer-links { flex-wrap: wrap; justify-content: center; gap: 18px; }
-            .legal-page { padding: 120px 6vw 60px; }
+            .legal-page { padding: 120px 6vw 60px; align-items: center; }
+            .legal-back { align-self: center; }
             .legal-card { padding: 28px; margin: 0 auto; width: 100%; max-width: 100%; }
             .legal-label, .legal-title, .legal-date { text-align: center; }
         }
@@ -583,6 +585,7 @@
             font-size: 0.95rem;
             line-height: 1.7;
             opacity: 0.8;
+            word-break: break-word;
         }
         .legal-section ul {
             padding-left: 20px;
@@ -653,7 +656,7 @@
                 <span class="stat-val" vid="34">99%</span> Match Score
             </div>
             <div class="stat-pill" vid="35">
-                <span class="stat-val" vid="36">2</span> Active Wallets
+                <span class="stat-val" vid="36">40</span> Active Wallets
             </div>
             <div class="stat-pill" vid="37">
                 <span class="stat-val" vid="38">0</span> Private Keys Stored
@@ -811,7 +814,7 @@
         <div class="legal-card">
             <div class="legal-section">
                 <h2>1. Introduction</h2>
-                <p>Welcome to SUGAR ("we," "our," or "us"). SUGAR is a Web3 social matching platform that connects crypto users based on their on-chain portfolio activity. This Privacy Policy describes how we collect, use, and protect information when you use our application at sugar-app.xyz.</p>
+                <p>Welcome to SUGAR. SUGAR is a Web3 social matching platform that connects crypto users based on their on-chain portfolio activity. This Privacy Policy describes how information is collected, used, and protected when you use the application at sugar-app.xyz.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
@@ -838,7 +841,7 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>4. Information Sharing</h2>
-                <p>We do not sell your personal information. We may share data:</p>
+                <p>SUGAR does not sell personal information. Data may be shared:</p>
                 <ul>
                     <li>With other users, as intended (e.g., your public profile and posts).</li>
                     <li>With service providers (e.g., Supabase for database hosting) under confidentiality agreements.</li>
@@ -848,7 +851,7 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>5. Data Storage &amp; Security</h2>
-                <p>Your data is stored in Supabase and in your browser's local storage. We implement reasonable security measures, but no system is 100% secure. Blockchain data (wallet addresses and transactions) is inherently public.</p>
+                <p>Your data is stored in Supabase and in your browser's local storage. Reasonable security measures are implemented, but no system is 100% secure. Blockchain data (wallet addresses and transactions) is inherently public.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
@@ -862,17 +865,17 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>7. Cookies &amp; Local Storage</h2>
-                <p>SUGAR uses browser local storage to persist your session, profile, and activity across visits. We do not use third-party advertising cookies.</p>
+                <p>SUGAR uses browser local storage to persist your session, profile, and activity across visits. No third-party advertising cookies are used.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>8. Children's Privacy</h2>
-                <p>SUGAR is intended for users 18 years of age or older. We do not knowingly collect data from minors. If you believe a minor has provided us data, please contact us immediately.</p>
+                <p>SUGAR is intended for users 18 years of age or older. Data from minors is not knowingly collected. If you believe a minor has provided data, please contact support immediately.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>9. Changes to This Policy</h2>
-                <p>We may update this policy periodically. We will post the updated version with a revised effective date. Continued use of SUGAR after changes constitutes acceptance.</p>
+                <p>This policy may be updated periodically. The updated version will be posted with a revised effective date. Continued use of SUGAR after changes constitutes acceptance.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
@@ -899,12 +902,12 @@
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>2. Eligibility</h2>
-                <p>You must be at least 18 years old to use SUGAR. By using the App, you represent that you meet this age requirement and that your use complies with any applicable laws in your jurisdiction.</p>
+                <p>You must be at least 18 years old to use SUGAR. By using the App, you represent that you meet this age requirement and that your use complies with applicable laws in your jurisdiction.</p>
             </div>
             <hr class="legal-divider">
             <div class="legal-section">
                 <h2>3. Your Account</h2>
-                <p>SUGAR uses Solana wallet authentication. You are responsible for the security of your wallet and any actions taken with it. We are not liable for unauthorized access due to wallet compromise.</p>
+                <p>SUGAR uses Solana wallet authentication. You are responsible for the security of your wallet and any actions taken with it. SUGAR is not liable for unauthorized access due to wallet compromise.</p>
                 <p>You agree to provide accurate profile information and keep it up to date. You may not impersonate any person or entity.</p>
             </div>
             <hr class="legal-divider">

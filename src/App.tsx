@@ -336,7 +336,11 @@ function App() {
         isMutual = sendHeart(match, session.address);
         ensureMatchPost(match);
         boostWallet(match.wallet_address);
-        toast.success(`Heart sent to ${match.username}!`);
+        toast.custom(() => (
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/95 border border-white/80 shadow-2xl flex items-center justify-center text-4xl text-rose-500">
+            ❤️
+          </div>
+        ), { duration: 900 });
         addNotification({
           type: 'match',
           actor: profile?.username || session.address.slice(0, 8),
@@ -377,6 +381,11 @@ function App() {
         console.error('recordSkip failed', error);
       }
     }
+    toast.custom(() => (
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/95 border border-white/80 shadow-2xl flex items-center justify-center text-4xl text-slate-500">
+        ✕
+      </div>
+    ), { duration: 900 });
     advanceMatch(match.wallet_address);
   };
 
@@ -402,6 +411,25 @@ function App() {
       !!hearts.sent[receiver] || (likesMap[session.address] || []).includes(receiver);
     let hasReceivedHeart =
       !!hearts.received[receiver] || (likesMap[receiver] || []).includes(session.address);
+
+    if (hasReceivedHeart && !hasSentHeart) {
+      recordHeartBack(session.address, receiver);
+      hasSentHeart = true;
+    }
+
+    if (hasHistory || (hasSentHeart && hasReceivedHeart)) {
+      sendMessage(receiver, content, session.address, image);
+      const actor = profile?.username || session.address.slice(0, 8);
+      addNotification({
+        type: 'message',
+        actor,
+        content: 'sent you a message',
+        wallet_address: session.address,
+        recipient: receiver,
+      });
+      return;
+    }
+
     const ensureHearts = async () => {
       await syncHeartsFor(session.address);
       const refreshedLikesRaw = localStorage.getItem('sugar-likes');
@@ -420,10 +448,6 @@ function App() {
         hasSentHeart = hasSentHeart || status.sent;
         hasReceivedHeart = hasReceivedHeart || status.received;
       }
-    }
-    if (hasReceivedHeart && !hasSentHeart) {
-      recordHeartBack(session.address, receiver);
-      hasSentHeart = true;
     }
     const isMutual = hasSentHeart && hasReceivedHeart;
     if (!isMutual && !hasHistory) {
