@@ -24,12 +24,27 @@ export function MatchCard({
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchDelta, setTouchDelta] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [actionIcon, setActionIcon] = useState<'heart' | 'skip' | null>(null);
+  const [actionTriggered, setActionTriggered] = useState(false);
 
   useEffect(() => {
     setImageLoaded(false);
     setTouchDelta({ x: 0, y: 0 });
     setIsDragging(false);
-  }, [match?.image]);
+    setSwipeDirection(null);
+    setActionIcon(null);
+    setActionTriggered(false);
+  }, [match?.wallet_address, match?.image]);
+
+  const handleAction = (direction: 'left' | 'right') => {
+    if (!match || swipeDirection) return;
+    setSwipeDirection(direction);
+    setActionIcon(direction === 'right' ? 'heart' : 'skip');
+    setIsDragging(false);
+    setTouchStart(null);
+    setTouchDelta({ x: 0, y: 0 });
+  };
 
   if (!match) {
     const isConnect = emptyState === 'connect';
@@ -97,13 +112,38 @@ export function MatchCard({
   const rotate = isDragging ? touchDelta.x / 20 : 0;
 
   return (
-    <div
+    <motion.div
       className="relative w-full h-full bg-white rounded-[32px] overflow-hidden shadow-2xl border border-slate-100 group touch-pan-y"
-      style={{
-        transform: `translateX(${translateX}px) rotate(${rotate}deg)`,
-        transition: isDragging ? 'none' : 'transform 0.2s ease',
+      style={
+        !swipeDirection
+          ? {
+              transform: `translateX(${translateX}px) rotate(${rotate}deg)`,
+              transition: isDragging ? 'none' : 'transform 0.2s ease',
+            }
+          : undefined
+      }
+      animate={
+        swipeDirection
+          ? {
+              x: swipeDirection === 'right' ? 420 : -420,
+              rotate: swipeDirection === 'right' ? 14 : -14,
+              opacity: 0,
+            }
+          : { opacity: 1 }
+      }
+      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      initial={false}
+      onAnimationComplete={() => {
+        if (!swipeDirection || actionTriggered) return;
+        setActionTriggered(true);
+        if (swipeDirection === 'right') {
+          onHeart?.();
+        } else {
+          onSkip?.();
+        }
       }}
       onTouchStart={(event) => {
+        if (swipeDirection) return;
         const touch = event.touches[0];
         setTouchStart({ x: touch.clientX, y: touch.clientY });
         setIsDragging(true);
@@ -125,9 +165,9 @@ export function MatchCard({
         const shouldSwipe = Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy);
         if (shouldSwipe) {
           if (dx > 0) {
-            onHeart?.();
+            handleAction('right');
           } else {
-            onSkip?.();
+            handleAction('left');
           }
         }
         setTouchStart(null);
@@ -286,7 +326,7 @@ export function MatchCard({
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onSkip}
+            onClick={() => handleAction('left')}
             className="w-14 h-14 rounded-full bg-white shadow-xl flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors border border-slate-100"
           >
             <X className="w-7 h-7" />
@@ -295,7 +335,7 @@ export function MatchCard({
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={onHeart}
+            onClick={() => handleAction('right')}
             className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 to-rose-500 shadow-lg shadow-pink-500/40 flex items-center justify-center text-white"
           >
             <Heart className="w-10 h-10 fill-white" />
@@ -303,6 +343,28 @@ export function MatchCard({
         </div>
       )}
 
-    </div>
+      {actionIcon && (
+        <motion.div
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
+        >
+          <div
+            className={`w-24 h-24 rounded-full flex items-center justify-center shadow-2xl ${
+              actionIcon === 'heart'
+                ? 'bg-pink-500/95 text-white'
+                : 'bg-white/90 text-slate-500'
+            }`}
+          >
+            {actionIcon === 'heart' ? (
+              <Heart className="w-12 h-12 fill-white" />
+            ) : (
+              <X className="w-12 h-12" />
+            )}
+          </div>
+        </motion.div>
+      )}
+
+    </motion.div>
   );
 }

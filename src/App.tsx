@@ -336,11 +336,6 @@ function App() {
         isMutual = sendHeart(match, session.address);
         ensureMatchPost(match);
         boostWallet(match.wallet_address);
-        toast.custom(() => (
-          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/95 border border-white/80 shadow-2xl flex items-center justify-center text-4xl text-rose-500">
-            ❤️
-          </div>
-        ), { duration: 900 });
         addNotification({
           type: 'match',
           actor: profile?.username || session.address.slice(0, 8),
@@ -381,11 +376,6 @@ function App() {
         console.error('recordSkip failed', error);
       }
     }
-    toast.custom(() => (
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-white/95 border border-white/80 shadow-2xl flex items-center justify-center text-4xl text-slate-500">
-        ✕
-      </div>
-    ), { duration: 900 });
     advanceMatch(match.wallet_address);
   };
 
