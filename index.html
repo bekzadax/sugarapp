@@ -1,1178 +1,637 @@
 <!doctype html>
-<html lang="en" vid="0"><head vid="1">
-    <meta charset="UTF-8" vid="2">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" vid="3">
-    <title vid="4">SUGAR | Web3 Dating</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" vid="5">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" vid="6">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&amp;display=swap" rel="stylesheet" vid="7">
-    <style vid="8">
-        :root {
-            --bg-gradient-start: #CBBCE3;
-            --bg-gradient-end: #EBE5F7;
-            --text-primary: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --text-dark: #1a1a1a;
-            --accent-pill: #FFFFFF;
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --card-radius: 24px;
-            --pill-radius: 999px;
-            --dark-card: #0F0F0F;
-        }
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SUGAR | Web3 Dating</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #D4B8F0 0%, #EBE0F7 50%, #F5D0E8 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'DM Serif Display', serif;
+    }
+    .text-ghost {
+      -webkit-text-stroke: 2px rgba(255, 255, 255, 0.4);
+      color: transparent;
+    }
+    .text-ghost-gradient {
+      background: linear-gradient(to right, #F72585, #D4B8F0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      opacity: 0.6;
+      -webkit-text-stroke: 0;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateY(-4px);
+    }
+    .blob {
+      position: absolute;
+      filter: blur(80px);
+      z-index: -1;
+      opacity: 0.6;
+    }
+    .phone-mockup {
+      box-shadow: 0 25px 50px -12px rgba(247, 37, 133, 0.35);
+      transition: transform 0.5s ease;
+    }
+    .phone-mockup:hover {
+      transform: rotate(0deg) scale(1.02);
+    }
+    .phone-scroll::-webkit-scrollbar { width: 4px; }
+    .phone-scroll::-webkit-scrollbar-track { background: transparent; }
+    .phone-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+    /* Legal pages */
+    .legal-page {
+      display: none;
+      min-height: 100vh;
+      padding: 140px 6vw 80px;
+      position: relative;
+      z-index: 2;
+      color: #fff;
+    }
+    .legal-page.active {
+      display: block;
+    }
+    #page-main.hidden {
+      display: none;
+    }
+    .legal-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 60px;
+      transition: background 0.2s;
+    }
+    .legal-back:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    .legal-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      opacity: 0.6;
+      margin-bottom: 12px;
+    }
+    .legal-title {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .legal-date {
+      font-size: 0.85rem;
+      opacity: 0.5;
+      margin-bottom: 60px;
+    }
+    .legal-card {
+      background: rgba(15, 15, 15, 0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      backdrop-filter: blur(24px);
+    }
+    .legal-section { margin-bottom: 24px; }
+    .legal-section:last-child { margin-bottom: 0; }
+    .legal-section h2 { font-size: 1rem; margin-bottom: 10px; }
+    .legal-section p,
+    .legal-section li { font-size: 0.95rem; line-height: 1.7; opacity: 0.85; }
+    .legal-section ul { list-style: disc; padding-left: 20px; }
+    .legal-section li { margin-bottom: 6px; }
+    .legal-section p + p { margin-top: 8px; }
+    .legal-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0; border: none; }
+    .legal-highlight { color: #fff; font-weight: 600; }
 
-        html, body {
-            width: 100%;
-            overflow-x: hidden;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            background-attachment: fixed;
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-        }
-
-        
-        .ambient-shape {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-            animation: float 20s infinite ease-in-out;
-        }
-        .shape-1 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, #A78BFA 0%, transparent 70%);
-            top: -20%;
-            left: -10%;
-        }
-        .shape-2 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, #F472B6 0%, transparent 70%);
-            bottom: 10%;
-            right: -10%;
-            animation-delay: -5s;
-        }
-        .shape-3 {
-            width: 300px;
-            height: 300px;
-            background: #fff;
-            top: 40%;
-            left: 50%;
-            opacity: 0.2;
-            transform: translate(-50%, -50%);
-            animation-delay: -10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(30px, -30px); }
-        }
-
-        
-        nav {
-            position: fixed;
-            top: 32px;
-            left: 0;
-            width: 100%;
-            padding: 0 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            pointer-events: none; 
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            pointer-events: auto;
-            opacity: 0.95;
-        }
-        .nav-logo img {
-            height: 60px;
-            width: auto;
-            display: block;
-        }
-
-        .nav-pill {
-            background: var(--accent-pill);
-            padding: 14px 32px;
-            border-radius: var(--pill-radius);
-            display: flex;
-            gap: 32px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-            pointer-events: auto;
-        }
-
-        .nav-pill a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-        .nav-pill a:hover {
-            opacity: 0.6;
-        }
-
-        .cta-pill {
-            background: var(--accent-pill);
-            color: var(--text-dark);
-            padding: 14px 28px;
-            border-radius: var(--pill-radius);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            pointer-events: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        
-        .hero {
-            height: 85vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 0 6vw;
-            position: relative;
-        }
-
-        h1 {
-            font-size: clamp(4rem, 12vw, 9rem);
-            line-height: 0.85;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: -0.04em;
-            margin-bottom: 2rem;
-            max-width: 90%;
-            position: relative;
-            z-index: 2;
-        }
-
-        h1 span {
-            display: block;
-        }
-
-        .hero-tagline {
-            font-size: 1.5rem;
-            font-weight: 300;
-            max-width: 500px;
-            line-height: 1.4;
-            margin-bottom: 3rem;
-            color: rgba(255,255,255,0.9);
-        }
-
-        
-        .scroll-indicator {
-            width: 64px;
-            height: 64px;
-            background: var(--accent-pill);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-dark);
-            cursor: pointer;
-            margin-top: 2rem;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .scroll-indicator:hover {
-            transform: scale(1.1);
-        }
-
-        
-        .stats-container {
-            position: absolute;
-            bottom: 40px;
-            left: 6vw;
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-
-        .stat-pill {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
-            border-radius: var(--pill-radius);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .stat-val {
-            font-weight: 700;
-        }
-
-        
-        section {
-            padding: 80px 6vw;
-            position: relative;
-            z-index: 2;
-        }
-
-        .section-header {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 60px;
-            text-transform: uppercase;
-        }
-
-        
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 32px;
-        }
-
-        .step-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 40px;
-            border-radius: var(--card-radius);
-            backdrop-filter: blur(12px);
-            transition: transform 0.3s ease;
-        }
-        
-        .step-card:hover {
-            transform: translateY(-10px);
-            background: rgba(255,255,255,0.25);
-        }
-
-        .step-num {
-            font-size: 4rem;
-            font-weight: 800;
-            opacity: 0.3;
-            margin-bottom: 20px;
-            line-height: 1;
-        }
-
-        .step-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .step-desc {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            opacity: 0.8;
-        }
-
-        .section-shell {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .design-steps {
-            display: flex;
-            justify-content: space-between;
-            gap: 24px;
-            position: relative;
-            flex-wrap: wrap;
-        }
-        .design-steps::before {
-            content: '';
-            position: absolute;
-            top: 44px;
-            left: 48px;
-            right: 48px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(17, 24, 39, 0.15), transparent);
-            z-index: 0;
-        }
-        .design-step-item {
-            flex: 1 1 160px;
-            max-width: 220px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        .design-step-icon {
-            width: 84px;
-            height: 84px;
-            margin: 0 auto 20px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 28px rgba(138, 99, 222, 0.18);
-            font-size: 22px;
-            font-weight: 700;
-            color: #8A63DE;
-            border: 4px solid #E0D4FC;
-        }
-        .design-step-title {
-            font-weight: 600;
-            font-size: 17px;
-            margin-bottom: 8px;
-            color: #4A3B69;
-        }
-        .design-step-desc {
-            font-size: 14px;
-            color: #7A6B99;
-            line-height: 1.5;
-        }
-
-        .design-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-        }
-        .design-table th {
-            text-align: left;
-            padding: 12px 24px;
-            color: #7A6B99;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .design-table td {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            padding: 20px 24px;
-            border-top: 1px solid rgba(74, 59, 105, 0.08);
-            border-bottom: 1px solid rgba(74, 59, 105, 0.08);
-            color: #4A3B69;
-            font-size: 15px;
-            transition: background 0.2s;
-        }
-        .design-table tr td:first-child {
-            border-top-left-radius: 16px;
-            border-bottom-left-radius: 16px;
-            border-left: 1px solid rgba(74, 59, 105, 0.08);
-            font-weight: 600;
-        }
-        .design-table tr td:last-child {
-            border-top-right-radius: 16px;
-            border-bottom-right-radius: 16px;
-            border-right: 1px solid rgba(74, 59, 105, 0.08);
-        }
-        .design-table tr:hover td {
-            background: rgba(255, 255, 255, 0.9);
-        }
-        .design-badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: 700;
-            color: white;
-            background: #8A63DE;
-        }
-        .design-badge.med { background: #B08AE0; }
-        .design-badge.low { background: #C4B0F0; color: #4A3B69; }
-
-        .design-security-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: start;
-        }
-        .design-security-main {
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.75);
-            border: 1px solid rgba(74, 59, 105, 0.08);
-            border-radius: var(--card-radius);
-            box-shadow: 0 10px 30px rgba(138, 99, 222, 0.12);
-        }
-        .design-security-main h2 {
-            font-size: 28px;
-            margin-bottom: 18px;
-            color: #4A3B69;
-        }
-        .design-security-main p {
-            color: #7A6B99;
-            line-height: 1.7;
-            margin-bottom: 26px;
-            font-size: 15px;
-        }
-        .design-security-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .design-security-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 18px 22px;
-            background: rgba(255, 255, 255, 0.65);
-            border: 1px solid rgba(74, 59, 105, 0.08);
-            border-radius: var(--rad-sm);
-            transition: transform 0.2s, background 0.2s;
-        }
-        .design-security-item:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateX(4px);
-        }
-        .design-check {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #8A63DE;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .design-security-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 2px;
-        }
-        .design-security-desc {
-            font-size: 13px;
-            color: #7A6B99;
-        }
-
-        
-        .scoring-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: start;
-        }
-
-        .scoring-info h3 {
-            font-size: 2.5rem;
-            margin-bottom: 24px;
-            line-height: 1.1;
-        }
-        .scoring-info p {
-            font-size: 1.1rem;
-            opacity: 0.8;
-            line-height: 1.6;
-            margin-bottom: 40px;
-        }
-
-        .data-table {
-            background: var(--glass-bg);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--glass-border);
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-        }
-
-        .table-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 24px 32px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .table-row:last-child {
-            border-bottom: none;
-        }
-
-        .row-label {
-            font-weight: 500;
-        }
-        .row-value {
-            font-weight: 700;
-            font-family: monospace;
-            opacity: 0.9;
-        }
-
-        
-        .wallet-pill-container {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .wallet-pill {
-            background: #fff;
-            color: #000;
-            padding: 16px 32px;
-            border-radius: var(--pill-radius);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .wallet-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #A78BFA;
-        }
-
-        
-        .security-container {
-            background: var(--dark-card);
-            color: #fff;
-            border-radius: var(--card-radius);
-            padding: 60px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        
-        .security-container::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .security-text h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-        .security-text p {
-            opacity: 0.7;
-            line-height: 1.6;
-        }
-
-        .security-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .sec-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 16px;
-        }
-        .sec-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.5;
-            margin-bottom: 8px;
-        }
-        .sec-data {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        
-        .faq-item {
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding: 32px 0;
-            cursor: pointer;
-        }
-        .faq-question {
-            font-size: 1.5rem;
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .faq-icon {
-            width: 24px;
-            height: 24px;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: relative;
-        }
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-top: 0;
-            max-width: 800px;
-            opacity: 0.8;
-        }
-
-        .faq-item:hover .faq-answer,
-        .faq-item.active .faq-answer {
-            max-height: 200px;
-            opacity: 1;
-            margin-top: 20px;
-        }
-        .faq-item.active .faq-icon::before,
-        .faq-item.active .faq-icon::after {
-            background: white;
-        }
-        .faq-icon::before,
-        .faq-icon::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 12px;
-            height: 2px;
-            background: white;
-            transform: translate(-50%, -50%);
-            transition: transform 0.2s ease;
-        }
-        .faq-icon::after {
-            transform: translate(-50%, -50%) rotate(90deg);
-        }
-        .faq-item.active .faq-icon::after {
-            transform: translate(-50%, -50%) rotate(0deg);
-        }
-
-        
-        footer {
-            padding: 80px 6vw;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-        .footer-brand {
-            font-size: 5rem;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            line-height: 0.8;
-            opacity: 0.2;
-        }
-        .footer-links {
-            display: flex;
-            gap: 40px;
-        }
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.6;
-        }
-
-        
-        @media (max-width: 1024px) {
-            h1 { font-size: 12vw; }
-            nav { padding: 0 20px; }
-            .nav-pill { display: none; }
-            .scoring-section { grid-template-columns: 1fr; }
-            .security-container { grid-template-columns: 1fr; }
-            .design-security-grid { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            nav { top: 20px; padding: 0 16px; }
-            .hero { height: auto; padding: 120px 7vw 40px; }
-            section { padding: 64px 7vw; }
-            .hero-tagline { font-size: 1.1rem; max-width: 100%; }
-            .stats-container {
-                position: static;
-                margin-top: 24px;
-                flex-wrap: wrap;
-                justify-content: center;
-                text-align: center;
-                width: 100%;
-            }
-            .stat-pill { text-align: center; font-size: 0.85rem; justify-content: center; }
-            footer {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 16px;
-                padding: 60px 8vw;
-            }
-            .footer-links { flex-wrap: wrap; justify-content: center; gap: 18px; }
-            .legal-page { padding: 120px 6vw 60px; align-items: center; }
-            .legal-back { align-self: center; }
-            .legal-card { padding: 28px; margin: 0 auto; width: 100%; max-width: 100%; }
-            .legal-label, .legal-title, .legal-date { text-align: center; }
-            .design-steps::before { display: none; }
-            .design-step-item { max-width: none; }
-            .design-table th, .design-table td { padding: 16px 18px; }
-        }
-
-        /* Legal pages */
-        .legal-page {
-            display: none;
-            min-height: 100vh;
-            padding: 140px 6vw 80px;
-            position: relative;
-            z-index: 2;
-        }
-        .legal-page.active {
-            display: block;
-        }
-        #page-main.hidden {
-            display: none;
-        }
-        .legal-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            margin-bottom: 60px;
-            transition: background 0.2s;
-        }
-        .legal-back:hover {
-            background: rgba(255,255,255,0.25);
-        }
-        .legal-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            opacity: 0.6;
-            margin-bottom: 12px;
-        }
-        .legal-title {
-            font-size: clamp(2.5rem, 7vw, 5rem);
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            line-height: 0.9;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-        .legal-date {
-            font-size: 0.85rem;
-            opacity: 0.5;
-            margin-bottom: 60px;
-        }
-        .legal-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
-            backdrop-filter: blur(20px);
-            padding: 48px;
-            max-width: 860px;
-        }
-        .legal-section {
-            margin-bottom: 40px;
-        }
-        .legal-section:last-child {
-            margin-bottom: 0;
-        }
-        .legal-section h2 {
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 14px;
-            opacity: 0.9;
-        }
-        .legal-section p,
-        .legal-section li {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            opacity: 0.8;
-            word-break: break-word;
-        }
-        .legal-section ul {
-            padding-left: 20px;
-            margin-top: 8px;
-        }
-        .legal-section li {
-            margin-bottom: 8px;
-        }
-        .legal-section p + p {
-            margin-top: 12px;
-        }
-        .legal-divider {
-            border: none;
-            border-top: 1px solid rgba(255,255,255,0.15);
-            margin: 36px 0;
-        }
-        .legal-highlight {
-            font-weight: 600;
-            opacity: 1;
-        }
-
-    </style>
+    @media (max-width: 900px) {
+      nav .nav-links { display: none; }
+    }
+    @media (max-width: 768px) {
+      .legal-page { padding: 120px 6vw 60px; align-items: center; }
+      .legal-back { align-self: center; }
+      .legal-card { padding: 28px; margin: 0 auto; width: 100%; max-width: 100%; }
+      .legal-label, .legal-title, .legal-date { text-align: center; }
+      .phone-mockup { transform: none !important; }
+    }
+  </style>
 </head>
-<body vid="9">
+<body class="text-slate-800 antialiased selection:bg-[#F72585] selection:text-white">
+  <div id="page-main">
+    <div class="blob bg-purple-400 w-96 h-96 top-0 left-0 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+    <div class="blob bg-pink-300 w-96 h-96 bottom-0 right-0 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
 
-
-    <div class="ambient-shape shape-1"></div>
-    <div class="ambient-shape shape-2"></div>
-    <div class="ambient-shape shape-3"></div>
-
-    <nav vid="13">
-        <div class="nav-logo" vid="14">
-            <img src="/logo.png" alt="SUGAR logo" loading="lazy" />
-        </div>
-        <div class="nav-pill" vid="15">
-            <a href="#about" vid="16">About</a>
-            <a href="#how" vid="17">How It Works</a>
-            <a href="#wallets" vid="18">Wallets</a>
-            <a href="#security" vid="19">Security</a>
-            <a href="#faq" vid="20">FAQ</a>
-        </div>
-        <a href="/app.html" class="cta-pill" vid="21">
-            Open App
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" vid="22">
-                <path d="M1 11L11 1M11 1H3M11 1V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vid="23"></path>
-            </svg>
+    <nav class="fixed top-0 w-full z-50 px-6 py-6">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <img src="/logo.png" alt="SUGAR" class="w-7 h-7 object-contain" />
+          </div>
+          <span class="text-2xl font-bold tracking-tight text-white drop-shadow-sm">SUGAR</span>
         </a>
+
+        <div class="nav-links hidden md:flex items-center gap-1 bg-white/30 backdrop-blur-md px-2 py-2 rounded-full border border-white/40 shadow-sm">
+          <a href="#how-it-works" class="px-5 py-2 text-sm font-medium text-slate-800 hover:bg-white rounded-full transition-colors">How It Works</a>
+          <a href="#security" class="px-5 py-2 text-sm font-medium text-slate-800 hover:bg-white rounded-full transition-colors">Security</a>
+          <a href="#faq" class="px-5 py-2 text-sm font-medium text-slate-800 hover:bg-white rounded-full transition-colors">FAQ</a>
+        </div>
+
+        <a href="/app.html" class="hidden md:flex items-center gap-2 bg-white text-[#F72585] px-6 py-3 rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+          Open App <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </a>
+      </div>
     </nav>
 
-    <div id="page-main">
-    <div class="hero" vid="24">
-        <h1 vid="25">
-            <span vid="26">Find Your</span>
-            <span style="opacity: 0.5;" vid="27">Web3 Match</span>
-        </h1>
-        <div class="hero-tagline" vid="28">
-            The first wallet-native dating app. Connect your wallet, and find love on the blockchain.
-        </div>
-        
-        <div class="scroll-indicator" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})" vid="29">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" vid="30">
-                <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke-linecap="round" stroke-linejoin="round" vid="31"></path>
-            </svg>
+    <section class="relative pt-32 pb-16 min-h-[90vh] flex items-center overflow-hidden">
+      <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-7 z-10 flex flex-col justify-center">
+          <div class="relative mb-6">
+            <h1 class="text-7xl lg:text-[8rem] leading-[0.85] font-bold tracking-tighter text-white drop-shadow-sm">
+              FIND YOUR
+              <br />
+              <span class="text-ghost-gradient block mt-2">WEB3 MATCH</span>
+            </h1>
+          </div>
+
+          <p class="text-xl lg:text-2xl text-slate-700 max-w-lg font-medium mb-10 leading-relaxed">
+            The wallet-native dating experience. Connect your Solana wallet, control what you share,
+            and match with people who hold what you hold.
+          </p>
+
+          <div class="flex flex-wrap gap-4 mb-10">
+            <div class="glass-panel px-5 py-2 rounded-full flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-[#F72585]"></div>
+              <span class="text-sm font-semibold text-slate-800">40 Active Wallets</span>
+            </div>
+            <div class="glass-panel px-5 py-2 rounded-full flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-green-400"></div>
+              <span class="text-sm font-semibold text-slate-800">Private Keys Never Stored</span>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <button class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">
+              <i data-lucide="arrow-down" class="w-6 h-6 text-slate-800"></i>
+            </button>
+          </div>
         </div>
 
-        <div class="stats-container" vid="32">
-            <div class="stat-pill" vid="33">
-                <span class="stat-val" vid="34">99%</span> Match Score
-            </div>
-            <div class="stat-pill" vid="35">
-                <span class="stat-val" vid="36">40</span> Active Wallets
-            </div>
-            <div class="stat-pill" vid="37">
-                <span class="stat-val" vid="38">0</span> Private Keys Stored
-            </div>
-        </div>
-    </div>
+        <div class="lg:col-span-5 relative z-20 flex justify-center lg:justify-end">
+          <div class="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl phone-mockup transform rotate-6 ring-8 ring-gray-900/50">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-30"></div>
+            <div class="absolute -right-1 top-24 w-1 h-16 bg-gray-800 rounded-r-md"></div>
+            <div class="absolute -left-1 top-24 w-1 h-8 bg-gray-800 rounded-l-md"></div>
+            <div class="absolute -left-1 top-36 w-1 h-12 bg-gray-800 rounded-l-md"></div>
 
-    <section id="how" vid="39">
-        <div class="section-shell">
-            <div class="section-header" vid="40">How It Woks</div>
-            <div class="design-steps">
-                <div class="design-step-item">
-                    <div class="design-step-icon">1</div>
-                    <div class="design-step-title">Connect</div>
-                    <div class="design-step-desc">Link your Phantom or Solflare wallet securely.</div>
+            <div class="w-full h-full bg-white rounded-[2.5rem] overflow-hidden flex flex-col relative">
+              <div class="bg-white px-5 pt-12 pb-4 flex justify-between items-center border-b border-gray-100">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="heart" class="w-5 h-5 text-[#F72585] fill-[#F72585]"></i>
+                  <span class="font-bold text-gray-900 tracking-tight">SUGAR</span>
                 </div>
-                <div class="design-step-item">
-                    <div class="design-step-icon">2</div>
-                    <div class="design-step-title">Profile</div>
-                    <div class="design-step-desc">Generate a profile based on on-chain behavior.</div>
+                <div class="w-8 h-8 bg-gray-100 rounded-full overflow-hidden">
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full object-cover" />
                 </div>
-                <div class="design-step-item">
-                    <div class="design-step-icon">3</div>
-                    <div class="design-step-title">Match</div>
-                    <div class="design-step-desc">Find compatibility from shared signals.</div>
+              </div>
+
+              <div class="flex-1 bg-gray-50 p-4 phone-scroll overflow-y-auto flex flex-col">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                  <div class="h-56 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop');"></div>
+                  <div class="p-4">
+                    <div class="flex items-center justify-between">
+                      <div class="font-bold text-gray-900 text-lg">Elena</div>
+                      <div class="text-sm text-gray-500">24</div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">Solana • DeFi • NFTs</div>
+                    <div class="text-xs text-gray-400 mt-2">Verified • 2 miles away</div>
+                  </div>
                 </div>
-                <div class="design-step-item">
-                    <div class="design-step-icon">4</div>
-                    <div class="design-step-title">Chat</div>
-                    <div class="design-step-desc">Token-gated messaging ensures authenticity.</div>
+
+                <div class="mt-4 flex items-center justify-center gap-4">
+                  <button class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                  </button>
+                  <button class="w-14 h-14 rounded-full bg-[#F72585] flex items-center justify-center shadow-lg">
+                    <i data-lucide="heart" class="w-6 h-6 text-white fill-white"></i>
+                  </button>
                 </div>
+              </div>
+
+              <div class="h-5 bg-white flex justify-center items-center">
+                <div class="w-32 h-1 bg-gray-300 rounded-full"></div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </section>
 
-    <section id="security" vid="88">
-        <div class="section-shell">
-            <div class="design-security-grid">
-                <div class="design-security-main">
-                    <h2>Zero-Knowledge Architecture</h2>
-                    <p>
-                        SUGAR never accesses your private keys. Read-only permissions
-                        are used to analyze on-chain data and generate compatibility scores
-                        locally on your device.
-                    </p>
-                </div>
-                <div class="design-security-list">
-                    <div class="design-security-item">
-                        <div class="design-check">✓</div>
-                        <div>
-                            <div class="design-security-title">Non-Custodial</div>
-                            <div class="design-security-desc">Funds always stay in your wallet.</div>
-                        </div>
-                    </div>
-                    <div class="design-security-item">
-                        <div class="design-check">✓</div>
-                        <div>
-                            <div class="design-security-title">Open Source</div>
-                            <div class="design-security-desc">Contracts and adapters are verifiable.</div>
-                        </div>
-                    </div>
-                    <div class="design-security-item">
-                        <div class="design-check">✓</div>
-                        <div>
-                            <div class="design-security-title">Supported Wallets</div>
-                            <div class="design-security-desc" style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
-                                <div class="wallet-pill">
-                                    <div class="wallet-dot" style="background: #AB9FF2;"></div>
-                                    Phantom
-                                </div>
-                                <div class="wallet-pill">
-                                    <div class="wallet-dot" style="background: #FF9C32;"></div>
-                                    Solflare
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section id="how-it-works" class="py-16 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <span class="text-[#F72585] font-bold tracking-widest text-sm uppercase mb-2 block">The Process</span>
+            <h2 class="text-5xl lg:text-6xl text-slate-800">How It Works</h2>
+          </div>
+          <p class="max-w-md text-slate-600 leading-relaxed">
+            Simple, secure, and transparent. You choose what to reveal and who can see it.
+          </p>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="glass-card p-8 rounded-3xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-pink-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+            <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F72585] text-white font-bold mb-6 shadow-lg shadow-pink-500/30">1</span>
+            <h3 class="text-2xl font-bold text-slate-800 mb-3 font-serif">Connect Wallet</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Link Phantom or Solflare. No email or phone required.</p>
+          </div>
+
+          <div class="glass-card p-8 rounded-3xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-pink-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+            <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F72585] text-white font-bold mb-6 shadow-lg shadow-pink-500/30">2</span>
+            <h3 class="text-2xl font-bold text-slate-800 mb-3 font-serif">Create Profile</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Add a photo, set your bio, and choose what to show.</p>
+          </div>
+
+          <div class="glass-card p-8 rounded-3xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-pink-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+            <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F72585] text-white font-bold mb-6 shadow-lg shadow-pink-500/30">3</span>
+            <h3 class="text-2xl font-bold text-slate-800 mb-3 font-serif">Get Matched</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Match based on shared holdings and on-chain signals.</p>
+          </div>
+
+          <div class="glass-card p-8 rounded-3xl relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-pink-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+            <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F72585] text-white font-bold mb-6 shadow-lg shadow-pink-500/30">4</span>
+            <h3 class="text-2xl font-bold text-slate-800 mb-3 font-serif">Chat</h3>
+            <p class="text-slate-600 text-sm leading-relaxed">Message after both hearts are sent. No delays.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="faq" vid="106">
-        <div class="section-header" vid="107">FAQ</div>
-        
-        <div class="faq-item" vid="108">
-            <div class="faq-question" vid="109">
-                Is there a token required?
-                <div class="faq-icon" vid="110"></div>
+    <section id="security" class="py-16 bg-white/40 backdrop-blur-sm">
+      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="relative">
+          <div class="absolute inset-0 bg-gradient-to-r from-purple-200 to-pink-200 rounded-3xl transform rotate-3 blur-sm"></div>
+          <div class="relative bg-white p-10 rounded-3xl shadow-xl border border-white/50">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="p-3 bg-green-100 rounded-2xl">
+                <i data-lucide="shield-check" class="w-8 h-8 text-green-600"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg text-slate-800">Security First</h4>
+                <p class="text-slate-500 text-sm">Built on Solana</p>
+              </div>
             </div>
-            <div class="faq-answer" vid="111">
-                No, the basic matching functionality is free. Premium features like "Super Likes" or "Global Search" may require holding our governance token or specific NFTs in the future.
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <div class="mt-1 w-5 h-5 rounded-full bg-[#F72585] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                </div>
+                <div>
+                  <h5 class="font-bold text-slate-800">Non-Custodial</h5>
+                  <p class="text-sm text-slate-600 mt-1">Your funds never leave your wallet.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="mt-1 w-5 h-5 rounded-full bg-[#F72585] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                </div>
+                <div>
+                  <h5 class="font-bold text-slate-800">Read-Only</h5>
+                  <p class="text-sm text-slate-600 mt-1">We only request permission to view wallet data.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="mt-1 w-5 h-5 rounded-full bg-[#F72585] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                </div>
+                <div>
+                  <h5 class="font-bold text-slate-800">Supported Wallets</h5>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    <span class="px-3 py-1 rounded-full bg-white/70 border border-white text-xs font-semibold text-slate-700">Phantom</span>
+                    <span class="px-3 py-1 rounded-full bg-white/70 border border-white text-xs font-semibold text-slate-700">Solflare</span>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-
-        <div class="faq-item" vid="112">
-            <div class="faq-question" vid="113">
-                What chains do you support?
-                <div class="faq-icon" vid="114"></div>
-            </div>
-            <div class="faq-answer" vid="115">
-                Currently, SUGAR is native to Solana due to its low transaction fees and high speed, which is essential for a social experience. Ethereum L2 support is on our Q4 roadmap.
-            </div>
+        <div>
+          <h2 class="text-4xl lg:text-5xl text-slate-800 mb-4">Zero-knowledge by default</h2>
+          <p class="text-slate-600 leading-relaxed mb-6">
+            SUGAR never accesses your private keys. We use read-only permissions and generate compatibility scores locally on your device.
+          </p>
         </div>
-
-        <div class="faq-item" vid="116">
-            <div class="faq-question" vid="117">
-                Can I stay anonymous?
-                <div class="faq-icon" vid="118"></div>
-            </div>
-            <div class="faq-answer" vid="119">
-                Yes. You can choose to display your ENS/Bonfida name or remain completely pseudonymous. We verify assets, not identities.
-            </div>
-        </div>
+      </div>
     </section>
 
-    <footer vid="120">
-        <div class="footer-brand" vid="121">SUGAR</div>
-        <div class="footer-links" vid="122">
-            <a href="#" onclick="showLegal('privacy'); return false;">Privacy Policy</a>
-            <a href="#" onclick="showLegal('terms'); return false;">Terms of Service</a>
-            <a href="https://x.com/Sugarmatched" target="_blank" rel="noopener">X</a>
+    <section id="faq" class="py-16">
+      <div class="max-w-3xl mx-auto px-6">
+        <h2 class="text-4xl lg:text-5xl text-center text-slate-800 mb-10">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+          <details class="group bg-white/60 backdrop-blur-sm rounded-2xl border border-white/50 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+              <span class="font-bold text-lg text-slate-800">Is there a token required?</span>
+              <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center group-open:bg-[#F72585] transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 text-[#F72585] group-open:text-white group-open:rotate-45 transition-all duration-300"></i>
+              </div>
+            </summary>
+            <div class="px-6 pb-6 text-slate-600 leading-relaxed">
+              No, the basic matching functionality is free. Premium features like "Super Likes" or "Global Search" may require holding our governance token or specific NFTs in the future.
+            </div>
+          </details>
+
+          <details class="group bg-white/60 backdrop-blur-sm rounded-2xl border border-white/50 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+              <span class="font-bold text-lg text-slate-800">What chains do you support?</span>
+              <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center group-open:bg-[#F72585] transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 text-[#F72585] group-open:text-white group-open:rotate-45 transition-all duration-300"></i>
+              </div>
+            </summary>
+            <div class="px-6 pb-6 text-slate-600 leading-relaxed">
+              Currently, SUGAR is native to Solana due to its low transaction fees and high speed, which is essential for a social experience. Ethereum L2 support is on our Q4 roadmap.
+            </div>
+          </details>
+
+          <details class="group bg-white/60 backdrop-blur-sm rounded-2xl border border-white/50 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+              <span class="font-bold text-lg text-slate-800">Can I stay anonymous?</span>
+              <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center group-open:bg-[#F72585] transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 text-[#F72585] group-open:text-white group-open:rotate-45 transition-all duration-300"></i>
+              </div>
+            </summary>
+            <div class="px-6 pb-6 text-slate-600 leading-relaxed">
+              Yes. You can choose to display your ENS/Bonfida name or remain completely pseudonymous. We verify assets, not identities.
+            </div>
+          </details>
         </div>
+      </div>
+    </section>
+
+    <section class="py-16">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+        <div class="bg-[#F72585] rounded-[3rem] p-12 relative overflow-hidden shadow-2xl">
+          <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div class="relative z-10">
+            <h2 class="text-4xl md:text-5xl font-serif text-white mb-6">Ready to find your Web3 match?</h2>
+            <p class="text-pink-100 text-lg mb-8 max-w-lg mx-auto">Join the first crypto native dating and social trust community. Live on Solana.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+              <a href="/app.html" class="px-8 py-4 bg-white text-[#F72585] rounded-full font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                Open App
+              </a>
+              <a href="https://x.com/Sugarmatched" class="px-8 py-4 bg-pink-900/30 text-white border border-white/20 rounded-full font-bold hover:bg-pink-900/50 transition-all">
+                Follow on X
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="bg-white/40 backdrop-blur-md border-t border-white/30 pt-12 pb-8">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div>
+            <a href="#" class="flex items-center gap-2 mb-4">
+              <div class="w-8 h-8 bg-[#F72585] rounded-full flex items-center justify-center">
+                <i data-lucide="heart" class="w-4 h-4 text-white fill-white"></i>
+              </div>
+              <span class="text-xl font-bold text-slate-800">SUGAR</span>
+            </a>
+            <p class="text-slate-500 text-sm max-w-xs mb-4">
+              A crypto native dating and social trust app built on Solana.
+            </p>
+            <a href="https://x.com/Sugarmatched" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#F72585] transition-colors">
+              Follow on X <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 mb-4">Legal</h4>
+            <ul class="space-y-2 text-sm text-slate-600">
+              <li><a href="#" onclick="showLegal('privacy'); return false;" class="hover:text-[#F72585] transition-colors">Privacy Policy</a></li>
+              <li><a href="#" onclick="showLegal('terms'); return false;" class="hover:text-[#F72585] transition-colors">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-sm text-slate-500">© 2026 Sugar. All rights reserved.</p>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-xs font-medium text-slate-500">Systems Operational</span>
+          </div>
+        </div>
+      </div>
     </footer>
-    </div><!-- /#page-main -->
+  </div>
 
-    <!-- Privacy Policy Page -->
-    <div id="page-privacy" class="legal-page">
-        <button class="legal-back" onclick="hideLegal()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Back
-        </button>
-        <div class="legal-label">SUGAR</div>
-        <div class="legal-title">Privacy<br>Policy</div>
-        <div class="legal-date">Effective date: February 23, 2026</div>
-        <div class="legal-card">
-            <div class="legal-section">
-                <h2>1. Introduction</h2>
-                <p>Welcome to SUGAR. SUGAR is a Web3 social matching platform that connects crypto users based on their on-chain portfolio activity. This Privacy Policy describes how information is collected, used, and protected when you use the application at sugar-app.xyz.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>2. Information We Collect</h2>
-                <ul>
-                    <li><span class="legal-highlight">Wallet Address:</span> When you connect a Solana wallet, we read your public wallet address. We never request or store your private keys or seed phrases.</li>
-                    <li><span class="legal-highlight">On-chain Portfolio Data:</span> We fetch publicly available token holdings and portfolio balances from the Solana blockchain to power matching and the KOL Leaderboard.</li>
-                    <li><span class="legal-highlight">Profile Information:</span> Display name, profile photo (optional), gender preference, and bio that you voluntarily provide.</li>
-                    <li><span class="legal-highlight">Activity Data:</span> Hearts sent/received, posts, comments, votes, and messages you create within the app.</li>
-                    <li><span class="legal-highlight">Device &amp; Usage Data:</span> Browser type, operating system, and interaction logs for analytics and debugging.</li>
-                </ul>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>3. How We Use Your Information</h2>
-                <ul>
-                    <li>To match you with compatible crypto users based on portfolio overlap.</li>
-                    <li>To display your profile and activity to other users on the platform.</li>
-                    <li>To deliver in-app notifications and private messages.</li>
-                    <li>To maintain and improve the SUGAR platform.</li>
-                    <li>To detect and prevent fraud or abuse.</li>
-                </ul>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>4. Information Sharing</h2>
-                <p>SUGAR does not sell personal information. Data may be shared:</p>
-                <ul>
-                    <li>With other users, as intended (e.g., your public profile and posts).</li>
-                    <li>With service providers (e.g., Supabase for database hosting) under confidentiality agreements.</li>
-                    <li>If required by law or to protect the rights and safety of SUGAR or its users.</li>
-                </ul>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>5. Data Storage &amp; Security</h2>
-                <p>Your data is stored in Supabase and in your browser's local storage. Reasonable security measures are implemented, but no system is 100% secure. Blockchain data (wallet addresses and transactions) is inherently public.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>6. Your Rights</h2>
-                <ul>
-                    <li>Disconnect your wallet at any time to stop new data collection.</li>
-                    <li>Request deletion of your profile and associated data by contacting us.</li>
-                    <li>Update your profile information within the app at any time.</li>
-                </ul>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>7. Cookies &amp; Local Storage</h2>
-                <p>SUGAR uses browser local storage to persist your session, profile, and activity across visits. No third-party advertising cookies are used.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>8. Children's Privacy</h2>
-                <p>SUGAR is intended for users 18 years of age or older. Data from minors is not knowingly collected. If you believe a minor has provided data, please contact support immediately.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>9. Changes to This Policy</h2>
-                <p>This policy may be updated periodically. The updated version will be posted with a revised effective date. Continued use of SUGAR after changes constitutes acceptance.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>10. Contact</h2>
-                <p>For privacy questions or data requests, reach us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
-            </div>
-        </div>
+  <!-- Privacy Policy Page -->
+  <div id="page-privacy" class="legal-page">
+    <button class="legal-back" onclick="hideLegal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </button>
+    <div class="legal-label">SUGAR</div>
+    <div class="legal-title">Privacy<br>Policy</div>
+    <div class="legal-date">Effective date: February 23, 2026</div>
+    <div class="legal-card">
+      <div class="legal-section">
+        <h2>1. Introduction</h2>
+        <p>Welcome to SUGAR. SUGAR is a Web3 social matching platform that connects crypto users based on their on-chain portfolio activity. This Privacy Policy describes how information is collected, used, and protected when you use the application at sugar-app.xyz.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>2. Information We Collect</h2>
+        <ul>
+          <li><span class="legal-highlight">Wallet Address:</span> When you connect a Solana wallet, we read your public wallet address. We never request or store your private keys or seed phrases.</li>
+          <li><span class="legal-highlight">On-chain Portfolio Data:</span> We fetch publicly available token holdings and portfolio balances from the Solana blockchain to power matching and the KOL Leaderboard.</li>
+          <li><span class="legal-highlight">Profile Information:</span> Display name, profile photo (optional), gender preference, and bio that you voluntarily provide.</li>
+          <li><span class="legal-highlight">Activity Data:</span> Hearts sent/received, posts, comments, votes, and messages you create within the app.</li>
+          <li><span class="legal-highlight">Device & Usage Data:</span> Browser type, operating system, and interaction logs for analytics and debugging.</li>
+        </ul>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>3. How We Use Your Information</h2>
+        <ul>
+          <li>To match you with compatible crypto users based on portfolio overlap.</li>
+          <li>To display your profile and activity to other users on the platform.</li>
+          <li>To deliver in-app notifications and private messages.</li>
+          <li>To maintain and improve the SUGAR platform.</li>
+          <li>To detect and prevent fraud or abuse.</li>
+        </ul>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>4. Information Sharing</h2>
+        <p>SUGAR does not sell personal information. Data may be shared:</p>
+        <ul>
+          <li>With other users, as intended (e.g., your public profile and posts).</li>
+          <li>With service providers (e.g., Supabase for database hosting) under confidentiality agreements.</li>
+          <li>If required by law or to protect the rights and safety of SUGAR or its users.</li>
+        </ul>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>5. Data Storage & Security</h2>
+        <p>Your data is stored in Supabase and in your browser's local storage. Reasonable security measures are implemented, but no system is 100% secure. Blockchain data (wallet addresses and transactions) is inherently public.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>6. Your Rights</h2>
+        <ul>
+          <li>Disconnect your wallet at any time to stop new data collection.</li>
+          <li>Request deletion of your profile and associated data by contacting us.</li>
+          <li>Update your profile information within the app at any time.</li>
+        </ul>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>7. Cookies & Local Storage</h2>
+        <p>SUGAR uses browser local storage to persist your session, profile, and activity across visits. No third-party advertising cookies are used.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>8. Children's Privacy</h2>
+        <p>SUGAR is intended for users 18 years of age or older. Data from minors is not knowingly collected. If you believe a minor has provided data, please contact support immediately.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>9. Changes to This Policy</h2>
+        <p>This policy may be updated periodically. The updated version will be posted with a revised effective date. Continued use of SUGAR after changes constitutes acceptance.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>10. Contact</h2>
+        <p>For privacy questions or data requests, reach us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
+      </div>
     </div>
+  </div>
 
-    <!-- Terms of Service Page -->
-    <div id="page-terms" class="legal-page">
-        <button class="legal-back" onclick="hideLegal()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Back
-        </button>
-        <div class="legal-label">SUGAR</div>
-        <div class="legal-title">Terms of<br>Service</div>
-        <div class="legal-date">Effective date: February 23, 2026</div>
-        <div class="legal-card">
-            <div class="legal-section">
-                <h2>1. Acceptance of Terms</h2>
-                <p>By accessing or using SUGAR ("the App"), you agree to be bound by these Terms of Service. If you do not agree, do not use the App. These terms apply to all visitors, users, and others who access SUGAR.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>2. Eligibility</h2>
-                <p>You must be at least 18 years old to use SUGAR. By using the App, you represent that you meet this age requirement and that your use complies with applicable laws in your jurisdiction.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>3. Your Account</h2>
-                <p>SUGAR uses Solana wallet authentication. You are responsible for the security of your wallet and any actions taken with it. SUGAR is not liable for unauthorized access due to wallet compromise.</p>
-                <p>You agree to provide accurate profile information and keep it up to date. You may not impersonate any person or entity.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>4. Acceptable Use</h2>
-                <p>You agree not to:</p>
-                <ul>
-                    <li>Post content that is unlawful, harmful, abusive, harassing, or defamatory.</li>
-                    <li>Spam other users or send unsolicited commercial messages.</li>
-                    <li>Attempt to manipulate matching scores, portfolio data, or leaderboards.</li>
-                    <li>Reverse-engineer, scrape, or exploit any part of the App.</li>
-                    <li>Use SUGAR for fraudulent, deceptive, or illegal activities.</li>
-                    <li>Upload malicious code or interfere with the App's infrastructure.</li>
-                </ul>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>5. User Content</h2>
-                <p>You retain ownership of content you post. By posting, you grant SUGAR a non-exclusive, worldwide, royalty-free license to display and distribute that content within the App.</p>
-                <p>You are solely responsible for the content you post. SUGAR reserves the right to remove content that violates these terms without notice.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>6. No Financial Advice</h2>
-                <p>SUGAR displays on-chain portfolio data for social matching purposes only. Nothing in the App constitutes financial, investment, or trading advice. Always do your own research before making any financial decisions.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>7. Intellectual Property</h2>
-                <p>All SUGAR branding, design, code, and content (excluding user-generated content) are owned by SUGAR and protected by applicable intellectual property laws. You may not copy, reproduce, or distribute them without written permission.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>8. Disclaimers</h2>
-                <p>SUGAR is provided "as is" without warranties of any kind. SUGAR does not guarantee uninterrupted service, accuracy of portfolio data, or suitability of matches. Blockchain data is inherently public and may be inaccurate or delayed.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>9. Limitation of Liability</h2>
-                <p>To the fullest extent permitted by law, SUGAR and its team shall not be liable for any indirect, incidental, or consequential damages arising from your use of the App, including any loss of funds, data, or opportunity.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>10. Termination</h2>
-                <p>SUGAR may suspend or terminate access at any time, for any reason, including violation of these Terms. You may stop using the App at any time by disconnecting your wallet.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>11. Changes to Terms</h2>
-                <p>SUGAR reserves the right to modify these Terms at any time. Changes will be posted with an updated effective date. Continued use of the App after changes constitutes acceptance of the new Terms.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>12. Governing Law</h2>
-                <p>These Terms are governed by applicable law. Any disputes shall be resolved through binding arbitration rather than in court, except where prohibited by law.</p>
-            </div>
-            <hr class="legal-divider">
-            <div class="legal-section">
-                <h2>13. Contact</h2>
-                <p>For questions about these Terms, contact us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
-            </div>
-        </div>
+  <!-- Terms of Service Page -->
+  <div id="page-terms" class="legal-page">
+    <button class="legal-back" onclick="hideLegal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </button>
+    <div class="legal-label">SUGAR</div>
+    <div class="legal-title">Terms of<br>Service</div>
+    <div class="legal-date">Effective date: February 23, 2026</div>
+    <div class="legal-card">
+      <div class="legal-section">
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using SUGAR ("the App"), you agree to be bound by these Terms of Service. If you do not agree, do not use the App. These terms apply to all visitors, users, and others who access SUGAR.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>2. Eligibility</h2>
+        <p>You must be at least 18 years old to use SUGAR. By using the App, you represent that you meet this age requirement and that your use complies with applicable laws in your jurisdiction.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>3. Your Account</h2>
+        <p>SUGAR uses Solana wallet authentication. You are responsible for the security of your wallet and any actions taken with it. SUGAR is not liable for unauthorized access due to wallet compromise.</p>
+        <p>You agree to provide accurate profile information and keep it up to date. You may not impersonate any person or entity.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>4. Acceptable Use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Post content that is unlawful, harmful, abusive, harassing, or defamatory.</li>
+          <li>Spam other users or send unsolicited commercial messages.</li>
+          <li>Use SUGAR for fraudulent, deceptive, or illegal activities.</li>
+        </ul>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>5. On-Chain Data</h2>
+        <p>SUGAR reads public on-chain data from the Solana blockchain to generate portfolio insights and compatibility signals. This data is public by nature; SUGAR does not modify blockchain data.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>6. Content Ownership</h2>
+        <p>You retain ownership of content you post. By posting, you grant SUGAR a non-exclusive license to display your content within the App for matching and social purposes.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>7. Termination</h2>
+        <p>SUGAR reserves the right to suspend or terminate accounts that violate these terms, without notice.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>8. Disclaimer</h2>
+        <p>SUGAR is provided "as is" without warranties of any kind. We do not guarantee matches or outcomes.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>9. Limitation of Liability</h2>
+        <p>SUGAR is not liable for any damages resulting from use of the App, including loss of funds due to wallet compromise.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>10. Changes to Terms</h2>
+        <p>We may update these Terms from time to time. Continued use after updates constitutes acceptance.</p>
+      </div>
+      <hr class="legal-divider">
+      <div class="legal-section">
+        <h2>11. Contact</h2>
+        <p>For questions about these Terms, contact us at <span class="legal-highlight">support@sugar-app.xyz</span>.</p>
+      </div>
     </div>
+  </div>
 
-    <script>
-        document.querySelectorAll('.faq-item').forEach((item) => {
-            item.addEventListener('click', () => {
-                item.classList.toggle('active');
-            });
-        });
-
-        function showLegal(page) {
-            document.getElementById('page-main').classList.add('hidden');
-            document.getElementById('page-privacy').classList.remove('active');
-            document.getElementById('page-terms').classList.remove('active');
-            document.getElementById('page-' + page).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        function hideLegal() {
-            document.getElementById('page-privacy').classList.remove('active');
-            document.getElementById('page-terms').classList.remove('active');
-            document.getElementById('page-main').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    </script>
-
-</body></html>
+  <script>
+    function showLegal(page) {
+      document.getElementById('page-main').classList.add('hidden');
+      document.getElementById('page-privacy').classList.remove('active');
+      document.getElementById('page-terms').classList.remove('active');
+      document.getElementById('page-' + page).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function hideLegal() {
+      document.getElementById('page-privacy').classList.remove('active');
+      document.getElementById('page-terms').classList.remove('active');
+      document.getElementById('page-main').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    lucide.createIcons();
+  </script>
+</body>
+</html>

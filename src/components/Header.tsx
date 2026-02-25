@@ -70,10 +70,10 @@ export function Header({
 
   return (
     <header className="relative z-50">
-      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between px-4 py-4 lg:px-8">
+      <div className="w-full max-w-[1600px] mx-auto h-[88px] px-4 lg:px-8 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-white shadow-lg shadow-pink-500/20 border border-white/80 overflow-hidden">
             <img
               src="/logo.jpeg"
               alt="SUGAR"
@@ -82,26 +82,26 @@ export function Header({
               decoding="async"
             />
           </div>
-          <div>
-            <div className="font-serif text-2xl font-bold tracking-tight text-slate-900">
+          <div className="flex flex-col">
+            <div className="font-serif text-[26px] tracking-tight leading-none text-gray-900 drop-shadow-[0_2px_10px_rgba(247,37,133,0.15)]">
               SUGAR
             </div>
-            <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
-              Find Your Web3 Match
+            <div className="text-[10px] font-bold tracking-[0.15em] text-[#F72585] mt-1 opacity-90">
+              CONNECT. MATCH. TRUST.
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-1 bg-white/70 backdrop-blur-md px-2 py-1.5 rounded-full shadow-sm border border-white/60">
+        <nav className="hidden md:flex bg-white/40 backdrop-blur-xl p-1.5 rounded-full shadow-sm border border-white/60">
           {navItems.map((item) => (
             <button
               key={item.key}
               onClick={() => onViewChange(item.key as any)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+              className={`px-7 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                 currentView === item.key
-                  ? 'bg-white shadow-sm text-slate-900'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                  ? 'bg-white shadow-sm text-[#F72585]'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/30'
               }`}
             >
               {item.label}
@@ -110,18 +110,19 @@ export function Header({
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-3 lg:gap-5">
           <a
             href="/"
-            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-white transition-colors"
+            aria-label="Back to main"
+            className="hidden lg:flex items-center justify-center w-11 h-11 rounded-full bg-white/40 hover:bg-white/70 border border-white/60 shadow-sm text-gray-600 transition-all"
           >
-            <span className="text-base leading-none">←</span>
-            Back to Main
+            <span className="text-lg leading-none">←</span>
           </a>
+          <div className="h-8 w-px bg-gray-400/20 hidden lg:block" />
           {/* Mobile Menu */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+            className="md:hidden w-9 h-9 rounded-full bg-white/40 hover:bg-white/70 border border-white/60 flex items-center justify-center text-gray-600 transition-all"
             aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
@@ -130,9 +131,9 @@ export function Header({
           {/* Notifications */}
           <button
             onClick={onNotifications}
-            className="relative w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-white transition-colors"
+            className="relative w-11 h-11 rounded-full bg-white/40 hover:bg-white/70 border border-white/60 flex items-center justify-center text-gray-600 transition-all shadow-sm group"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-5 h-5 group-hover:text-[#F72585] transition-colors" />
             {notificationsCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
                 {notificationsCount > 99 ? '99+' : notificationsCount}
@@ -144,27 +145,27 @@ export function Header({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => session ? setIsWalletMenuOpen(!isWalletMenuOpen) : setIsWalletMenuOpen(true)}
-              className="flex items-center gap-2 pl-2 pr-2 md:pr-3 py-1.5 bg-white/80 backdrop-blur-md border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
+              className="flex items-center gap-3 bg-white/40 hover:bg-white/70 pr-5 pl-1.5 py-1.5 rounded-full transition-all border border-white/60 shadow-sm cursor-pointer group"
             >
-            <div
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-xs text-white font-bold overflow-hidden"
-              style={profile?.photo ? { backgroundImage: `url(${profile.photo})`, backgroundSize: 'cover' } : {}}
-            >
-              {!profile?.photo && (isConnecting && !session ? (
-                <span className="w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
-              ) : session ? (
-                initials
-              ) : (
-                <User className="w-4 h-4 text-white/90" />
-              ))}
-            </div>
-            <span className={`text-sm font-semibold text-slate-700 hidden sm:block ${isConnecting && !session ? 'opacity-0' : ''}`}>
-              {displayName}
-              {profile?.gender === 'male' && portfolioBalance !== undefined && (
-                <span className="text-slate-400 ml-1">• {portfolioBalance.toFixed(2)} SOL</span>
-              )}
-            </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+              <div
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs text-white font-bold overflow-hidden shadow-inner"
+                style={profile?.photo ? { backgroundImage: `url(${profile.photo})`, backgroundSize: 'cover' } : {}}
+              >
+                {!profile?.photo && (isConnecting && !session ? (
+                  <span className="w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
+                ) : session ? (
+                  initials
+                ) : (
+                  <User className="w-4 h-4 text-white/90" />
+                ))}
+              </div>
+              <span className={`text-sm font-bold text-gray-700 hidden sm:block ${isConnecting && !session ? 'opacity-0' : ''}`}>
+                {displayName}
+                {profile?.gender === 'male' && portfolioBalance !== undefined && (
+                  <span className="text-gray-400 ml-1">• {portfolioBalance.toFixed(2)} SOL</span>
+                )}
+              </span>
+              <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
             </button>
 
           <AnimatePresence>
