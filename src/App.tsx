@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Menu } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { MatchCard } from '@/components/MatchCard';
 import { Feed } from '@/components/Feed';
@@ -547,12 +546,12 @@ function App() {
   const activePortfolio = scanPortfolio || appPortfolio;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#D4B8F0] via-[#EBE0F7] to-[#F5D0E8] text-[#0F0F0F] overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#CBBCE3] via-[#E6D9F6] to-[#F1EAFB] text-slate-800 overflow-hidden flex flex-col relative">
       {/* Background Effects */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-purple-300 rounded-full blur-[80px] mix-blend-multiply opacity-60 animate-blob" />
-        <div className="absolute bottom-[-150px] right-[-150px] w-[600px] h-[600px] bg-[#F72585] rounded-full blur-[90px] mix-blend-multiply opacity-40 animate-blob animation-delay-2000" />
-        <div className="absolute top-[40%] left-[20%] w-[400px] h-[400px] bg-blue-200 rounded-full blur-[90px] mix-blend-multiply opacity-30 animate-blob animation-delay-4000" />
+        <div className="absolute top-0 left-[-10%] w-[500px] h-[500px] bg-purple-200 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-blob" />
+        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-rose-200 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-blob animation-delay-2000" />
+        <div className="absolute bottom-[-20%] left-[20%] w-[600px] h-[600px] bg-blue-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-70 animate-blob animation-delay-4000" />
       </div>
 
       {/* Toast Notifications */}
@@ -573,54 +572,30 @@ function App() {
       />
 
       {/* Main Content */}
-      <main className="relative z-10 flex-1 w-full max-w-[1600px] mx-auto p-4 lg:p-8 pt-2 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-[calc(100vh-88px)] overflow-hidden">
+      <main className="relative z-10 flex-1 w-full max-w-[1440px] mx-auto grid grid-cols-12 gap-6 px-4 lg:px-8 pb-8 pt-4 md:pt-2 overflow-visible md:overflow-hidden">
         {/* Left Column - Match Card (Feed/Matches views) */}
         {view === 'feed' && (
-          <section className="lg:col-span-7 h-full flex flex-col items-center justify-center relative pb-8">
-            <div className="relative w-[320px] sm:w-[360px] md:w-[380px] h-[640px] sm:h-[680px] md:h-[720px] perspective-1000 group">
-              <div className="absolute inset-0 bg-white/20 rounded-[45px] transform scale-[0.85] -translate-y-12 border border-white/10 shadow-lg backdrop-blur-[2px] transition-transform duration-700 ease-out group-hover:-translate-y-16" />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/60 rounded-[45px] transform scale-[0.92] -translate-y-6 border border-white/30 shadow-xl backdrop-blur-sm transition-transform duration-500 ease-out group-hover:-translate-y-8" />
-              <div className="absolute inset-0 bg-white rounded-[45px] shadow-[0_20px_60px_-15px_rgba(247,37,133,0.25)] z-20 flex flex-col overflow-hidden ring-1 ring-black/5">
-                <div className="px-6 pt-6 pb-4 flex items-center justify-between">
-                  <button
-                    onClick={() => setView('feed')}
-                    className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-600 transition-colors"
-                    aria-label="Menu"
-                  >
-                    <Menu className="w-5 h-5" />
-                  </button>
-                  <div className="flex items-center gap-1.5 opacity-60">
-                    <Heart className="w-3 h-3 text-[#F72585] fill-[#F72585]" />
-                    <span className="text-[10px] font-black tracking-[0.2em] text-gray-900 uppercase">
-                      Sugar
-                    </span>
-                  </div>
-                  <div className="w-10 h-10" />
-                </div>
+          <section className="col-span-12 lg:col-span-7 xl:col-span-8 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)] flex flex-col justify-center py-4 md:py-0">
+            <div className="relative w-full max-w-lg mx-auto h-full max-h-[620px] md:max-h-[700px]">
+              {/* Card Stack Effect */}
+              <div className="absolute top-4 left-4 right-[-10px] bottom-[-10px] bg-white opacity-40 rounded-[32px] scale-95 transform translate-y-4 -z-10 border border-white/40 shadow-sm" />
+              <div className="absolute top-8 left-8 right-[-20px] bottom-[-20px] bg-white opacity-20 rounded-[32px] scale-90 transform translate-y-8 -z-20 border border-white/20 shadow-sm" />
 
-                <div className="flex-1 px-6 pb-6">
-                  <div className="h-full">
-                    <MatchCard
-                      match={currentMatch}
-                      onSkip={handleSkip}
-                      onHeart={handleSendHeart}
-                      onConnect={handleConnect}
-                      emptyState={session ? 'nomore' : 'connect'}
-                    />
-                  </div>
-                </div>
-
-                <div className="pb-4 flex justify-center">
-                  <div className="w-32 h-1.5 bg-gray-200/80 rounded-full" />
-                </div>
-              </div>
+              {/* Match Card */}
+              <MatchCard
+                match={currentMatch}
+                onSkip={handleSkip}
+                onHeart={handleSendHeart}
+                onConnect={handleConnect}
+                emptyState={session ? 'nomore' : 'connect'}
+              />
             </div>
           </section>
         )}
 
         {/* Left Column - Messages */}
         {view === 'messages' && session && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-88px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <Messages
               messages={messages}
               session={session}
@@ -641,7 +616,7 @@ function App() {
         )}
 
         {view === 'notifications' && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-88px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <Notifications
               notifications={userNotifications}
               onNotificationClick={(note) => {
@@ -666,7 +641,7 @@ function App() {
 
         {/* Left Column - Profile */}
         {view === 'profile' && session && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-88px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             {profileReady ? (
               <ProfilePage
                 profile={profile}
@@ -692,7 +667,7 @@ function App() {
 
         {/* Left Column - KOL */}
         {view === 'kol' && (
-          <section className="col-span-12 lg:col-span-12 h-[calc(100vh-88px)]">
+          <section className="col-span-12 lg:col-span-12 min-h-[calc(100vh-120px)] md:h-[calc(100vh-120px)]">
             <div className="md:hidden mb-3">
               <button
                 onClick={() => setView('feed')}

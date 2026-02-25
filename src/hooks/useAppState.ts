@@ -289,7 +289,6 @@ export function useAppState() {
       username: row.username || formatFallbackUsername(row.wallet_address),
       gender: row.gender || undefined,
       photo: row.photo || undefined,
-      image: row.image || row.photo || undefined,
       instagram: row.instagram || undefined,
       xHandle: row.x_handle || row.xHandle || undefined,
       verified: row.verified ?? true,
@@ -325,12 +324,11 @@ export function useAppState() {
       return;
     }
     try {
-      const resolvedPhoto = fullProfile.photo || fullProfile.image || null;
       const { error } = await supabase.from('profiles').upsert({
         wallet_address: fullProfile.wallet_address,
         username: fullProfile.username,
         gender: fullProfile.gender || null,
-        photo: resolvedPhoto,
+        photo: fullProfile.photo || null,
         instagram: fullProfile.instagram || null,
         x_handle: fullProfile.xHandle || null,
         verified: fullProfile.verified ?? true,
@@ -2032,14 +2030,6 @@ export function useAppState() {
       const tokens = portfolio?.tokens ?? baseProfile?.tokens ?? [];
       const nftCount = portfolio?.nfts?.length ?? baseProfile?.nft_count ?? 0;
       const totalValue = portfolio?.total_value ?? baseProfile?.total_value ?? 0;
-      const resolvedPhoto =
-        userProfile.photo ??
-        userProfile.image ??
-        baseProfile?.photo ??
-        baseProfile?.image ??
-        existingProfile?.photo ??
-        existingProfile?.image ??
-        undefined;
       const username =
         userProfile.username && userProfile.username.trim().length > 0
           ? userProfile.username
@@ -2050,8 +2040,6 @@ export function useAppState() {
         ...userProfile,
         username,
         wallet_address: walletAddress,
-        photo: resolvedPhoto,
-        image: resolvedPhoto,
         tokens,
         nft_count: nftCount,
         total_value: totalValue,
@@ -2083,17 +2071,11 @@ export function useAppState() {
         defaults?.username && defaults.username.trim().length > 0
           ? defaults.username
           : formatFallbackUsername(walletAddress);
-      const resolvedPhoto =
-        defaults?.photo ??
-        defaults?.image ??
-        undefined;
       const fullProfile: User = {
         ...DEFAULT_PROFILE,
         ...defaults,
         username,
         wallet_address: walletAddress,
-        photo: resolvedPhoto,
-        image: resolvedPhoto,
         tokens,
         nft_count: portfolio?.nfts?.length || 0,
         total_value: portfolio?.total_value || 0,
@@ -3064,6 +3046,18 @@ const DEFAULT_POSTS: Post[] = [
   },
   {
     id: 40,
+    author: '@MilaStorm',
+    wallet_address: '7p3Q6v9M1b2C5r7T4x1L9k3P6s2W8y5A7v4G2m1Z8f',
+    content: 'If your love language isn’t “buying the dip,” we won’t work.',
+    type: 'story',
+    tokens: ['ETH', 'USDC'],
+    vouch_count: 420,
+    vent_count: 7,
+    comments: [{ author: 'SiennaRay', text: 'Dip buyers are a different breed.', votes: 3 }],
+    timestamp: Date.now() - 9100000,
+  },
+  {
+    id: 41,
     author: '@SiennaRay',
     wallet_address: '2k8L5m9V1c3N8x6R4b2T9w1K7p5M3s8Q2v6Y4t1A7e',
     content: 'Real question: Are we building long-term value or just farming short-term attention?',
@@ -3471,6 +3465,23 @@ const CANDIDATES = [
     nfts: ['mythic-9'],
   },
   {
+    wallet_address: '7p3Q6v9M1b2C5r7T4x1L9k3P6s2W8y5A7v4G2m1Z8f',
+    username: 'MilaStorm',
+    age: 26,
+    distance: '3 miles away',
+    bio: 'High volatility, higher standards.',
+    gender: 'female',
+    instagram: 'mila.storm',
+    xHandle: 'MilaStorm',
+    image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=2560&auto=format&fit=crop',
+    tokens: [
+      { symbol: 'ETH', amount: 4.4 },
+      { symbol: 'USDC', amount: 2100 },
+      { symbol: 'ARB', amount: 750 },
+    ],
+    nfts: ['azuki-11'],
+  },
+  {
     wallet_address: '2k8L5m9V1c3N8x6R4b2T9w1K7p5M3s8Q2v6Y4t1A7e',
     username: 'SiennaRay',
     age: 24,
@@ -3639,6 +3650,23 @@ const CANDIDATES = [
       { symbol: 'SOL', amount: 8 },
     ],
     nfts: ['doodle-13'],
+  },
+  {
+    wallet_address: '2n8Q5v9M1b2C5r7T4x2L9k3P6s2W8y5A7v4G2m1Z8s',
+    username: 'MilaVoss',
+    age: 26,
+    distance: '5 miles away',
+    bio: 'If you can read charts and feelings, say hi.',
+    gender: 'female',
+    instagram: 'mila.voss',
+    xHandle: 'MilaVoss',
+    image: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=2560&auto=format&fit=crop',
+    tokens: [
+      { symbol: 'ETH', amount: 3.1 },
+      { symbol: 'USDC', amount: 1500 },
+      { symbol: 'AAVE', amount: 40 },
+    ],
+    nfts: ['azuki-24'],
   },
   {
     wallet_address: '5t2Q9v7M1b3C6r8T4x2L9k3P6s2W8y5A7v4G2m1Z8u',

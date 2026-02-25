@@ -112,7 +112,7 @@ export function MatchCard({
   const rotate = isDragging ? touchDelta.x / 20 : 0;
 
   const swipeTransition: Transition = swipeDirection
-    ? { type: 'tween', duration: 0.22, ease: [0.22, 1, 0.36, 1] }
+    ? { type: 'tween', duration: 0.18, ease: 'easeOut' }
     : { type: 'tween', duration: 0.2, ease: 'easeOut' };
 
   return (
@@ -122,7 +122,7 @@ export function MatchCard({
         !swipeDirection
           ? {
               transform: `translateX(${translateX}px) rotate(${rotate}deg)`,
-              transition: isDragging ? 'none' : 'transform 0.18s ease',
+              transition: isDragging ? 'none' : 'transform 0.2s ease',
             }
           : undefined
       }
@@ -196,7 +196,7 @@ export function MatchCard({
             loading="lazy"
             decoding="async"
             onLoad={() => setImageLoaded(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           />
