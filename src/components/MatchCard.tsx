@@ -21,6 +21,7 @@ export function MatchCard({
   onConnect,
 }: MatchCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchDelta, setTouchDelta] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -30,6 +31,7 @@ export function MatchCard({
 
   useEffect(() => {
     setImageLoaded(false);
+    setImageError(false);
     setTouchDelta({ x: 0, y: 0 });
     setIsDragging(false);
     setSwipeDirection(null);
@@ -189,13 +191,13 @@ export function MatchCard({
             <div className="text-white/80 text-2xl font-serif">{initials}</div>
           </div>
         </div>
-        {match.image && (
+        {match.image && !imageError && (
           <img
             src={match.image}
             alt={match.username}
-            loading="lazy"
             decoding="async"
             onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}

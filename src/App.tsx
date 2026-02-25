@@ -517,8 +517,14 @@ function App() {
 
   const currentMatch = useMemo(() => {
     if (!session) return null;
-    return matches[matchIndex] || null;
-  }, [matches, matchIndex, session]);
+    const m = matches[matchIndex] || null;
+    if (!m) return null;
+    // Overlay photo from matchDirectory (loaded from Supabase) when the
+    // swiping candidate has no image (e.g. localStorage was stale/full).
+    const dirImage = matchDirectory[m.wallet_address]?.image;
+    if (!m.image && dirImage) return { ...m, image: dirImage };
+    return m;
+  }, [matches, matchIndex, session, matchDirectory]);
   const likedWallets = useMemo(
     () => (session ? getLikedWalletsFor(session.address) : []),
     [session, getLikedWalletsFor, hearts.sent]

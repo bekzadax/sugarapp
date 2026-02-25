@@ -159,6 +159,9 @@ export function useAppState() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const supabaseEnabled = !!supabase;
   const lastProfileSyncRef = useRef<string | null>(null);
+  // Ref so generateMatches can read the latest matchDirectory without being
+  // in its dependency array (which would cause circular regeneration loops).
+  const matchDirectoryRef = useRef<Record<string, MatchCandidate>>({});
 
   useEffect(() => {
     if (matches.length > 0 && matchIndex >= matches.length) {
@@ -1157,6 +1160,61 @@ export function useAppState() {
             }
             return { ...prev, received, total };
           });
+          // If the sender is not yet in matchDirectory, load their profile from
+          // Supabase so the chat header shows their name/photo immediately.
+          if (!matchDirectoryRef.current[row.sender] && supabase) {
+            void supabase
+              .from('profiles')
+              .select('*')
+              .eq('wallet_address', row.sender)
+              .single()
+              .then(({ data: senderRow }) => {
+                if (!senderRow) return;
+                const senderProfile = mapProfileRow(senderRow);
+                const kolAvatar = KOL_AVATARS[senderProfile.wallet_address];
+                const image = kolAvatar
+                  ? `https://unavatar.io/x/${kolAvatar}`
+                  : senderProfile.photo || '';
+                const tokens = Array.isArray(senderProfile.tokens)
+                  ? senderProfile.tokens.map((t: any) =>
+                      typeof t === 'string' ? { symbol: t, amount: 0, usdValue: 0 } : t
+                    )
+                  : [];
+                const totalValue =
+                  senderProfile.total_value ||
+                  tokens.reduce((s: number, t: any) => s + (t.usdValue || 0), 0);
+                setMatchDirectory((prev) => {
+                  if (prev[senderProfile.wallet_address]) return prev;
+                  return {
+                    ...prev,
+                    [senderProfile.wallet_address]: {
+                      wallet_address: senderProfile.wallet_address,
+                      username: senderProfile.username,
+                      portfolio: {
+                        tokens,
+                        total_value: totalValue,
+                        balance: tokens.find((t: any) => t.symbol === 'SOL')?.amount || 0,
+                        nfts: senderProfile.nfts || [],
+                      },
+                      match: { score: 50, sharedTokens: [], sharedNfts: [], diamondHands: false },
+                      tokens,
+                      nft_count: senderProfile.nft_count || 0,
+                      total_value: totalValue,
+                      hearts_sent: 0,
+                      hearts_received: 0,
+                      bio: senderProfile.bio || 'Open to new connections.',
+                      age: senderProfile.age || 24,
+                      distance: senderProfile.distance,
+                      image,
+                      gender: senderProfile.gender || 'female',
+                      instagram: senderProfile.instagram,
+                      xHandle: senderProfile.xHandle,
+                      verified: senderProfile.verified ?? true,
+                    },
+                  };
+                });
+              });
+          }
         }
       )
       .subscribe();
@@ -1242,6 +1300,11 @@ export function useAppState() {
     seedSupabaseProfiles,
     seedSupabaseEngagement,
   ]);
+
+  // Keep ref in sync so generateMatches can read latest photos without circular deps
+  useEffect(() => {
+    matchDirectoryRef.current = matchDirectory;
+  }, [matchDirectory]);
 
   // Compute hot score for sorting
   const computeHotScore = useCallback((post: Post): number => {
@@ -1733,9 +1796,12 @@ export function useAppState() {
       const match = calculateMatch(userPortfolio, candidatePortfolio);
       const verified = candidate.verified ?? verifiedSet?.has(candidate.wallet_address) ?? false;
       const kolAvatar = KOL_AVATARS[candidate.wallet_address];
+      // Use the cached image from matchDirectory (Supabase-sourced) as fallback
+      // so photos appear even when the localStorage profile has no photo yet.
+      const cachedDirImage = matchDirectoryRef.current[candidate.wallet_address]?.image;
       let image = kolAvatar
         ? `https://unavatar.io/x/${kolAvatar}`
-        : candidate.image || candidate.photo || '';
+        : candidate.image || candidate.photo || cachedDirImage || '';
       if (!image && candidate.gender === 'female') {
         const idx = candidate.wallet_address.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
         image = DEFAULT_FEMALE_IMAGES[idx % DEFAULT_FEMALE_IMAGES.length];
