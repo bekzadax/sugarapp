@@ -155,8 +155,8 @@
     .dn-steps::before { content: ''; position: absolute; top: 44px; left: 48px; right: 48px; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); z-index: 0; }
     .dn-step { flex: 1 1 160px; max-width: 220px; text-align: center; position: relative; z-index: 1; }
     .dn-step-icon { width: 84px; height: 84px; margin: 0 auto 20px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgba(138,99,222,0.18); font-size: 22px; font-weight: 700; color: #8A63DE; border: 4px solid #E0D4FC; }
-    .dn-step-title { font-weight: 600; font-size: 17px; margin-bottom: 8px; color: #fff; }
-    .dn-step-desc { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .dn-step-title { font-weight: 600; font-size: 17px; margin-bottom: 8px; color: #4A3B69; }
+    .dn-step-desc { font-size: 14px; color: #7A6B99; line-height: 1.5; }
     .dn-sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
     .dn-sec-main { padding: 40px; background: rgba(255,255,255,0.75); border: 1px solid rgba(74,59,105,0.08); border-radius: 24px; box-shadow: 0 10px 30px rgba(138,99,222,0.12); }
     .dn-sec-main h2 { font-size: 1.6rem; margin-bottom: 18px; color: #4A3B69; font-family: 'DM Serif Display', serif; }
@@ -349,7 +349,7 @@
             <div class="dn-faq-icon"></div>
           </div>
           <div class="dn-faq-a">
-            Currently, SUGAR is native to Solana due to its low transaction fees and high speed, which is essential for a social experience. Ethereum L2 support is on our Q4 roadmap.
+            Currently, SUGAR is native to Solana due to its low transaction fees and high speed, which is essential for a social experience.
           </div>
         </div>
         <div class="dn-faq-item">
@@ -364,60 +364,12 @@
       </div>
     </section>
 
-    <section class="py-16">
-      <div class="max-w-4xl mx-auto px-6 text-center">
-        <div class="bg-[#F72585] rounded-[3rem] p-12 relative overflow-hidden shadow-2xl">
-          <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div class="relative z-10">
-            <h2 class="text-4xl md:text-5xl font-serif text-white mb-6">Ready to find your Web3 match?</h2>
-            <p class="text-pink-100 text-lg mb-8 max-w-lg mx-auto">Join the first crypto native dating and social trust community. Live on Solana.</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="/app.html" class="px-8 py-4 bg-white text-[#F72585] rounded-full font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
-                Open App
-              </a>
-              <a href="https://x.com/Sugarmatched" class="px-8 py-4 bg-pink-900/30 text-white border border-white/20 rounded-full font-bold hover:bg-pink-900/50 transition-all">
-                Follow on X
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="bg-white/40 backdrop-blur-md border-t border-white/30 pt-12 pb-8">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-          <div>
-            <a href="#" class="flex items-center gap-2 mb-4">
-              <div class="w-8 h-8 bg-[#F72585] rounded-full flex items-center justify-center">
-                <i data-lucide="heart" class="w-4 h-4 text-white fill-white"></i>
-              </div>
-              <span class="text-xl font-bold text-slate-800">SUGAR</span>
-            </a>
-            <p class="text-slate-500 text-sm max-w-xs mb-4">
-              A crypto native dating and social trust app built on Solana.
-            </p>
-            <a href="https://x.com/Sugarmatched" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#F72585] transition-colors">
-              Follow on X <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </a>
-          </div>
-
-          <div>
-            <h4 class="font-bold text-slate-800 mb-4">Legal</h4>
-            <ul class="space-y-2 text-sm text-slate-600">
-              <li><a href="#" onclick="showLegal('privacy'); return false;" class="hover:text-[#F72585] transition-colors">Privacy Policy</a></li>
-              <li><a href="#" onclick="showLegal('terms'); return false;" class="hover:text-[#F72585] transition-colors">Terms of Service</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p class="text-sm text-slate-500">© 2026 Sugar. All rights reserved.</p>
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span class="text-xs font-medium text-slate-500">Systems Operational</span>
-          </div>
-        </div>
+    <footer style="padding: 80px 6vw; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 2; flex-wrap: wrap; gap: 24px;">
+      <div style="font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.8; opacity: 0.2; color: #fff;">SUGAR</div>
+      <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+        <a href="#" onclick="showLegal('privacy'); return false;" style="color: white; text-decoration: none; opacity: 0.6; font-size: 0.9rem;">Privacy Policy</a>
+        <a href="#" onclick="showLegal('terms'); return false;" style="color: white; text-decoration: none; opacity: 0.6; font-size: 0.9rem;">Terms of Service</a>
+        <a href="https://x.com/Sugarmatched" target="_blank" rel="noopener" style="color: white; text-decoration: none; opacity: 0.6; font-size: 0.9rem;">X</a>
       </div>
     </footer>
   </div>
