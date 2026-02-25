@@ -10,13 +10,13 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Each commit gets its own build — never canceled by a later push
+    concurrency:
+      group: build-${{ github.sha }}
+      cancel-in-progress: false
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,6 +39,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    # Only one deploy at a time — queued deploys are replaced by the latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
