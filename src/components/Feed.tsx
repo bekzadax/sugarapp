@@ -11,7 +11,7 @@ interface FeedProps {
   focusPostId?: number | null;
   onFocusHandled?: () => void;
   anonymous: boolean;
-  feedTab: 'vouch' | 'hot' | 'new' | 'top' | 'liked';
+  feedTab: 'vouch' | 'hot' | 'new';
   heartsTotal: number;
   hasLikes: boolean;
   onCreatePost: (content: string) => void;
@@ -20,7 +20,7 @@ interface FeedProps {
   onVoteComment: (postId: number, commentIndex: number) => void;
   onShare: (postId: number) => void;
   onToggleAnonymous: () => void;
-  onSetFeedTab: (tab: 'vouch' | 'hot' | 'new' | 'top' | 'liked') => void;
+  onSetFeedTab: (tab: 'vouch' | 'hot' | 'new') => void;
   calculateOverlapScore: (tokens: string[], portfolio: Portfolio | null) => number;
 }
 
@@ -121,7 +121,7 @@ export function Feed({
 
             {/* Tabs */}
             <div className="mt-3 flex flex-wrap gap-2">
-              {(['vouch', 'hot', 'new', 'top', 'liked'] as const).map((tab) => (
+              {(['vouch', 'hot', 'new'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => onSetFeedTab(tab)}
@@ -133,8 +133,6 @@ export function Feed({
                 >
                   {tab === 'vouch'
                     ? 'Vouch & Vent'
-                    : tab === 'liked'
-                    ? 'Liked'
                     : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
@@ -195,8 +193,6 @@ export function Feed({
               ? 'Connect your wallet to see the feed.'
               : !hasLikes
               ? 'Like someone to unlock their feed.'
-              : feedTab === 'liked'
-              ? 'No liked profiles yet. Send a heart to see their posts here.'
               : 'No posts yet.'}
           </div>
         ) : (

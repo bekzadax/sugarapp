@@ -111,11 +111,11 @@ export function MatchCard({
   const xHandle = cleanHandle(match.xHandle, 'x.com');
   const initials = match.username ? match.username.replace('@', '').slice(0, 2).toUpperCase() : 'SG';
   const translateX = isDragging ? touchDelta.x : 0;
-  const rotate = isDragging ? touchDelta.x / 20 : 0;
+  const rotate = isDragging ? touchDelta.x / 16 : 0;
 
   const swipeTransition: Transition = swipeDirection
-    ? { type: 'tween', duration: 0.18, ease: 'easeOut' }
-    : { type: 'tween', duration: 0.2, ease: 'easeOut' };
+    ? { type: 'tween', duration: 0.12, ease: 'easeOut' }
+    : { type: 'tween', duration: 0.1, ease: 'easeOut' };
 
   return (
     <motion.div
@@ -124,15 +124,15 @@ export function MatchCard({
         !swipeDirection
           ? {
               transform: `translateX(${translateX}px) rotate(${rotate}deg)`,
-              transition: isDragging ? 'none' : 'transform 0.2s ease',
+              transition: isDragging ? 'none' : 'transform 0.1s ease',
             }
           : undefined
       }
       animate={
         swipeDirection
           ? {
-              x: swipeDirection === 'right' ? 420 : -420,
-              rotate: swipeDirection === 'right' ? 14 : -14,
+              x: swipeDirection === 'right' ? 500 : -500,
+              rotate: swipeDirection === 'right' ? 20 : -20,
               opacity: 0,
             }
           : { opacity: 1 }
@@ -168,7 +168,7 @@ export function MatchCard({
         if (!touchStart) return;
         const dx = touchDelta.x;
         const dy = touchDelta.y;
-        const shouldSwipe = Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy);
+        const shouldSwipe = Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy);
         if (shouldSwipe) {
           if (dx > 0) {
             handleAction('right');

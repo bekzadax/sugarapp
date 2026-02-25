@@ -67,9 +67,6 @@ export function KOLLeaderboard(_props: KOLLeaderboardProps) {
           <Trophy className="w-5 h-5 text-yellow-500" />
           <h2 className="font-serif text-xl text-slate-800">Leaderboard</h2>
         </div>
-        <p className="text-xs text-slate-400">
-          Top profiles by likes or net worth.
-        </p>
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => setSortBy('likes')}

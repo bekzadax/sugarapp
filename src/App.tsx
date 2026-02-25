@@ -537,13 +537,8 @@ function App() {
     [notifications, session]
   );
   const sortedPosts = useMemo(() => {
-    const base = getSortedPosts();
-    if (feedTab === 'liked') {
-      if (!likedWallets.length) return [];
-      return base.filter((post) => likedWallets.includes(post.wallet_address));
-    }
-    return base;
-  }, [getSortedPosts, feedTab, likedWallets]);
+    return getSortedPosts();
+  }, [getSortedPosts]);
   const likedOnlyPosts = useMemo(() => {
     if (!likedWallets.length) return [];
     return sortedPosts.filter((post) => likedWallets.includes(post.wallet_address));

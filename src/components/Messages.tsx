@@ -34,6 +34,7 @@ export function Messages({
   const [showProfile, setShowProfile] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (openUser) {
@@ -79,6 +80,10 @@ export function Messages({
 
   const selectedMatch = selectedUser ? matches[selectedUser] : undefined;
   const selectedMessages = conversationMap.get(selectedUser || '') || [];
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [selectedMessages.length, selectedUser]);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -457,6 +462,7 @@ export function Messages({
                 );
               })}
             </AnimatePresence>
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}

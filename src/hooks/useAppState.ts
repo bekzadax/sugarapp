@@ -136,7 +136,7 @@ const KOL_PROFILES: User[] = KOL_SEED.filter((kol) => kol.wallet).map((kol) => {
 
 export function useAppState() {
   const [view, setView] = useState<'feed' | 'messages' | 'profile' | 'kol' | 'notifications'>('feed');
-  const [feedTab, setFeedTab] = useState<'vouch' | 'hot' | 'new' | 'top' | 'liked'>('vouch');
+  const [feedTab, setFeedTab] = useState<'vouch' | 'hot' | 'new'>('vouch');
   const [anonymous, setAnonymous] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [profile, setProfile] = useState<User | null>(null);
@@ -350,9 +350,18 @@ export function useAppState() {
     }
   }, [supabaseEnabled]);
 
+  // Debounced localStorage persistence — avoids blocking the UI thread when
+  // many messages (some with large base64 images) arrive in quick succession.
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
+      } catch (e) {
+        console.warn('Failed to persist messages to localStorage', e);
+      }
+    }, 300);
+    return () => clearTimeout(id);
   }, [messages, hydrated]);
 
   useEffect(() => {
@@ -1037,15 +1046,7 @@ export function useAppState() {
           prev.forEach((m) => {
             if (!byId.has(m.id)) byId.set(m.id, m);
           });
-          const merged = Array.from(byId.values()).sort(
-            (a, b) => a.timestamp - b.timestamp
-          );
-          try {
-            localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(merged));
-          } catch (e) {
-            console.warn('Failed to persist messages to localStorage', e);
-          }
-          return merged;
+          return Array.from(byId.values()).sort((a, b) => a.timestamp - b.timestamp);
         });
         return;
       }
@@ -1109,15 +1110,7 @@ export function useAppState() {
           };
           setMessages((prev) => {
             if (prev.some((msg) => msg.id === incoming.id)) return prev;
-            const next = [...prev, incoming].sort((a, b) => a.timestamp - b.timestamp);
-            if (hydrated) {
-              try {
-                localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(next));
-              } catch (e) {
-                console.warn('Failed to persist message to localStorage', e);
-              }
-            }
-            return next;
+            return [...prev, incoming].sort((a, b) => a.timestamp - b.timestamp);
           });
         }
       )
@@ -1318,13 +1311,8 @@ export function useAppState() {
   const getSortedPosts = useCallback((): Post[] => {
     const sorted = [...posts];
     const boost = (post: Post) => (boostedWallets.has(post.wallet_address) ? 50 : 0);
-    if (feedTab === 'new' || feedTab === 'liked') {
+    if (feedTab === 'new') {
       sorted.sort((a, b) => (b.timestamp + boost(b)) - (a.timestamp + boost(a)));
-    } else if (feedTab === 'top') {
-      sorted.sort(
-        (a, b) =>
-          (b.vouch_count || 0) + boost(b) - ((a.vouch_count || 0) + boost(a))
-      );
     } else if (feedTab === 'vouch') {
       sorted.sort(
         (a, b) =>
@@ -2196,15 +2184,8 @@ export function useAppState() {
         timestamp: Date.now(),
         read: false,
       };
-      setMessages((prev) => {
-        const next = [...prev, newMessage];
-        try {
-          localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(next));
-        } catch (e) {
-          console.warn('Failed to persist message to localStorage', e);
-        }
-        return next;
-      });
+      // Optimistic update — localStorage is persisted by the debounced useEffect
+      setMessages((prev) => [...prev, newMessage]);
       if (supabaseEnabled && supabase) {
         const { error } = await supabase.from('messages').upsert(
           {
@@ -3514,23 +3495,6 @@ const CANDIDATES = [
     nfts: ['doodle-3'],
   },
   {
-    wallet_address: '3c7V2m9Q1x4B8r6N5t2K9w3L7p1S6y4A8v2M5n1D9h',
-    username: 'AriaBloom',
-    age: 23,
-    distance: '2 miles away',
-    bio: 'I like smart bets and soft edges.',
-    gender: 'female',
-    instagram: 'aria.bloom',
-    xHandle: 'AriaBloom',
-    image: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=2560&auto=format&fit=crop',
-    tokens: [
-      { symbol: 'ETH', amount: 1.9 },
-      { symbol: 'USDC', amount: 1400 },
-      { symbol: 'PEPE', amount: 1200000 },
-    ],
-    nfts: ['mythic-9'],
-  },
-  {
     wallet_address: '7p3Q6v9M1b2C5r7T4x1L9k3P6s2W8y5A7v4G2m1Z8f',
     username: 'MilaStorm',
     age: 26,
@@ -3599,23 +3563,6 @@ const CANDIDATES = [
     nfts: ['azuki-14'],
   },
   {
-    wallet_address: '2x7M4v9Q1b5C8r6N3t2K9w4L7p1S6y3A8v2M5n1D9k',
-    username: 'IvySkye',
-    age: 23,
-    distance: '3 miles away',
-    bio: 'Candle closes and city nights. Looking for a steady hand.',
-    gender: 'female',
-    instagram: 'ivy.skye',
-    xHandle: 'IvySkye',
-    image: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=2560&auto=format&fit=crop',
-    tokens: [
-      { symbol: 'ETH', amount: 1.6 },
-      { symbol: 'SOL', amount: 11 },
-      { symbol: 'USDC', amount: 800 },
-    ],
-    nfts: ['madlad-21'],
-  },
-  {
     wallet_address: '6p2Q9m7V1c3N8x6R4b2T9w1K7p5M3s8Q2v6Y4t1A7f',
     username: 'LuxeNora',
     age: 26,
@@ -3631,23 +3578,6 @@ const CANDIDATES = [
       { symbol: 'AAVE', amount: 45 },
     ],
     nfts: ['doodle-11'],
-  },
-  {
-    wallet_address: '3m8Q2v6N9b1C5r7T4x2L9k3P6s2W8y5A7v4G2m1Z8j',
-    username: 'NovaMuse',
-    age: 25,
-    distance: '2 miles away',
-    bio: 'Low noise, high quality. Let’s see if we match.',
-    gender: 'female',
-    instagram: 'nova.muse',
-    xHandle: 'NovaMuse',
-    image: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=2560&auto=format&fit=crop',
-    tokens: [
-      { symbol: 'ETH', amount: 2.1 },
-      { symbol: 'USDC', amount: 1200 },
-      { symbol: 'ARB', amount: 520 },
-    ],
-    nfts: ['azuki-16'],
   },
   {
     wallet_address: '7q1M9v3Q2b5C8r6N4t2K9w3L7p1S6y4A8v2M5n1D9p',

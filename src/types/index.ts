@@ -93,7 +93,7 @@ export interface Session {
 // App State
 export interface AppState {
   view: 'feed' | 'messages' | 'profile' | 'kol' | 'notifications';
-  feedTab: 'vouch' | 'hot' | 'new' | 'top' | 'liked';
+  feedTab: 'vouch' | 'hot' | 'new';
   anonymous: boolean;
   posts: Post[];
   session: Session | null;
